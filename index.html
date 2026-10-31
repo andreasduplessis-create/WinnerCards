@@ -36,6 +36,8 @@
     font-size: 0.95rem;
   }
   .status-line .turn { color: var(--cyan); font-weight: 600; }
+  .status-line .win { color: var(--green); font-weight: 700; }
+  .status-line .lose { color: var(--red); font-weight: 700; }
   .card-display {
     background: var(--card-bg);
     border-radius: 16px;
@@ -49,7 +51,11 @@
     height: 200px;
     object-fit: contain;
     background: #111820;
-    cursor: grab;
+    transition: border 0.2s;
+  }
+  .card-image.peek {
+    border: 4px solid #fbbf24;
+    box-shadow: 0 0 20px #fbbf24;
   }
   .card-name {
     text-align: center;
@@ -71,13 +77,14 @@
   .stat-label { font-weight: 600; display: flex; align-items: center; gap: 6px; }
   .stat-label.higher { color: var(--cyan); }
   .stat-label.lower { color: var(--orange); }
-  .stat-value { font-weight: 500; color: var(--white); }
+  .stat-value { font-weight: 500; color: var(--white); display: flex; align-items: center; gap: 6px; }
   .dot {
     width: 8px; height: 8px; border-radius: 50%; display: inline-block;
   }
   .dot.better { background: var(--green); }
   .dot.medium { background: #ffffff; }
   .dot.worse { background: var(--red); }
+  .dot.hidden-dot { display: none; }
   .result {
     text-align: center;
     padding: 12px;
@@ -85,9 +92,6 @@
     font-weight: 700;
     min-height: 48px;
   }
-  .result.win { color: var(--green); }
-  .result.lose { color: var(--red); }
-  .result.tie { color: #fbbf24; }
   .hidden { display: none; }
   .lobby, .game-over { text-align: center; padding: 40px 16px; }
   button, input {
@@ -122,27 +126,28 @@
     color: var(--cyan);
     margin: 16px 0;
   }
+  .debug-wrap {
+    margin-top: 20px;
+    text-align: center;
+  }
+  .debug-toggle {
+    background: #243044;
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
   .debug {
     background: #1a2332;
     border-radius: 8px;
     padding: 8px 12px;
-    margin-bottom: 12px;
+    margin-top: 8px;
     font-size: 0.8rem;
     color: var(--muted);
     text-align: left;
-    position: relative;
+    display: none;
   }
-  .popup {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    background: #1a2332;
-    color: var(--green);
-    font-weight: 700;
-    text-align: center;
-    padding: 8px;
-    border-radius: 8px;
-    z-index: 2;
-  }
+  .debug.open { display: block; }
   .image-dots {
     text-align: center;
     padding: 6px 0;
@@ -155,6 +160,26 @@
     margin: 0 3px;
   }
   .image-dots span.active { background: var(--cyan); }
+  .reveal-btn {
+    display: block;
+    width: 90%;
+    margin: 12px auto;
+    background: var(--orange);
+    color: #000;
+  }
+  .joker-area {
+    text-align: center;
+    margin: 16px 0;
+  }
+  .joker-btn {
+    background: #fbbf24;
+    color: #000;
+    font-weight: 700;
+  }
+  .joker-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 </style>
 </head>
 <body>
@@ -173,7 +198,6 @@
 </div>
 
 <div id="gameScreen" class="hidden">
-  <div class="debug" id="debugInfo"></div>
   <div class="pile-info" id="pileInfo"></div>
   <div class="card-display">
     <img class="card-image" id="cardImage" src="" alt="">
@@ -181,7 +205,13 @@
     <div class="card-name" id="cardName">—</div>
     <div class="stats" id="statsContainer"></div>
   </div>
+  <div id="revealArea"></div>
+  <div class="joker-area" id="jokerArea"></div>
   <div class="result" id="resultDisplay"></div>
+  <div class="debug-wrap">
+    <button class="debug-toggle" onclick="document.getElementById('debugInfo').classList.toggle('open')">Debug</button>
+    <div class="debug" id="debugInfo"></div>
+  </div>
 </div>
 
 <div id="gameOverScreen" class="game-over hidden">
@@ -213,8 +243,27 @@ let criteria = [];
 let gameRef = null;
 let currentImageIndex = 0;
 let currentImages = [];
-let popupTimeout = null;
 let autoRotateTimer = null;
+let jokersLeft = 3;
+let jokerTypes = [];
+
+const icons = {
+  speed: "🚀",
+  thrust: "🔥",
+  ceiling: "🏔️",
+  weight: "⚖️",
+  range: "🗺️",
+  climb: "📈",
+  thrusttoweight: "💪",
+  payload: "💣"
+};
+
+function formatNumber(n) {
+  if (n === undefined || n === null || n === "—") return "—";
+  const num = Number(n);
+  if (isNaN(num)) return n;
+  return num.toLocaleString("en-US");
+}
 
 async function loadCards() {
   const res = await fetch("4and5genfighters.json");
@@ -241,6 +290,7 @@ window.createRoom = async function() {
   roomCode = generateCode();
   myPlayer = 1;
   const deck = shuffle(cards);
+  jokerTypes = shuffle(["colors", "peek", "skip"]);
   const initialState = {
     p1: deck.slice(0, 16),
     p2: deck.slice(16),
@@ -248,7 +298,8 @@ window.createRoom = async function() {
     pending: [],
     status: "waiting",
     lastWinner: null,
-    debug: null
+    debug: null,
+    reveal: null
   };
   gameRef = ref(db, `rooms/${roomCode}`);
   await set(gameRef, initialState);
@@ -266,6 +317,7 @@ window.joinRoom = async function() {
   await loadCards();
   roomCode = code;
   myPlayer = 2;
+  jokerTypes = shuffle(["colors", "peek", "skip"]);
   gameRef = ref(db, `rooms/${roomCode}`);
   const snap = await get(gameRef);
   if (!snap.exists()) {
@@ -291,7 +343,7 @@ function listenToGame() {
 }
 
 function getImages(card) {
-  if (card.images && card.images.length) return card.images;
+  if (card.images && card.images.length) return card.images.filter(Boolean);
   if (card.image) return [card.image];
   return [];
 }
@@ -302,11 +354,15 @@ function resolveImageSrc(src) {
   return `images/${src}`;
 }
 
+function updateDots() {
+  document.querySelectorAll("#imageDots span").forEach((s, i) => {
+    s.classList.toggle("active", i === currentImageIndex);
+  });
+}
+
 function startAutoRotate() {
   if (autoRotateTimer) clearInterval(autoRotateTimer);
   if (currentImages.length <= 1) return;
-
-  // First change after 2.5s, then every 1.5s
   setTimeout(() => {
     currentImageIndex = (currentImageIndex + 1) % currentImages.length;
     document.getElementById("cardImage").src = resolveImageSrc(currentImages[currentImageIndex]);
@@ -319,31 +375,38 @@ function startAutoRotate() {
   }, 2500);
 }
 
-function updateDots() {
-  document.querySelectorAll("#imageDots span").forEach((s, i) => {
-    s.classList.toggle("active", i === currentImageIndex);
-  });
+function renderJokerButton() {
+  const area = document.getElementById("jokerArea");
+  area.innerHTML = "";
+  if (jokersLeft <= 0) return;
+  const btn = document.createElement("button");
+  btn.className = "joker-btn";
+  btn.textContent = `Joker (${jokersLeft})`;
+  btn.onclick = useJoker;
+  area.appendChild(btn);
 }
 
-function stopAutoRotate() {
-  if (autoRotateTimer) {
-    clearInterval(autoRotateTimer);
-    autoRotateTimer = null;
-  }
-}
+function useJoker() {
+  if (jokersLeft <= 0 || !jokerTypes.length) return;
+  const type = jokerTypes.shift();
+  jokersLeft--;
+  renderJokerButton();
 
-function showPopup(text) {
-  const debug = document.getElementById("debugInfo");
-  let popup = debug.querySelector(".popup");
-  if (!popup) {
-    popup = document.createElement("div");
-    popup.className = "popup";
-    debug.appendChild(popup);
+  if (type === "colors") {
+    document.querySelectorAll(".dot").forEach(d => d.classList.remove("hidden-dot"));
+    setTimeout(() => {
+      document.querySelectorAll(".dot").forEach(d => d.classList.add("hidden-dot"));
+    }, 3000);
+  } else if (type === "peek") {
+    const state = null; // will be handled via current render
+    // Peek is applied in render by checking a flag; for simplicity we trigger a visual
+    const img = document.getElementById("cardImage");
+    img.classList.add("peek");
+    setTimeout(() => img.classList.remove("peek"), 3000);
+  } else if (type === "skip") {
+    // Skip is handled by the player clicking a category after; for now just notify
+    document.getElementById("debugInfo").textContent = "Joker: Skip – next card will be loaded on next play";
   }
-  popup.textContent = text;
-  popup.style.display = "block";
-  if (popupTimeout) clearTimeout(popupTimeout);
-  popupTimeout = setTimeout(() => { popup.style.display = "none"; }, 1800);
 }
 
 function renderState(state) {
@@ -355,9 +418,13 @@ function renderState(state) {
   const card = myCards[0];
   const isMyTurn = state.turn === myPlayer && state.status === "playing";
 
+  let statusExtra = "";
+  if (state.lastWinner === myPlayer) statusExtra = ' <span class="win">You win!</span>';
+  else if (state.lastWinner && state.lastWinner !== myPlayer) statusExtra = ' <span class="lose">You lost</span>';
+
   document.getElementById("statusLine").innerHTML = `
     <span class="turn">${isMyTurn ? "Your turn" : "Opponent's turn"}</span>
-    · Your cards: ${myCards.length}
+    · Your cards: ${myCards.length}${statusExtra}
   `;
 
   currentImages = getImages(card);
@@ -365,12 +432,12 @@ function renderState(state) {
   const imgEl = document.getElementById("cardImage");
   imgEl.src = currentImages.length ? resolveImageSrc(currentImages[0]) : "";
   imgEl.onerror = () => {
-    // Skip broken image
-    currentImages.splice(currentImageIndex, 1);
-    if (currentImages.length === 0) return;
-    currentImageIndex = currentImageIndex % currentImages.length;
-    imgEl.src = resolveImageSrc(currentImages[currentImageIndex]);
-    updateDots();
+    currentImages = currentImages.filter((_, i) => i !== currentImageIndex);
+    if (currentImages.length) {
+      currentImageIndex = currentImageIndex % currentImages.length;
+      imgEl.src = resolveImageSrc(currentImages[currentImageIndex]);
+      updateDots();
+    }
   };
   startAutoRotate();
 
@@ -386,16 +453,17 @@ function renderState(state) {
     const row = document.createElement("div");
     row.className = "stat-row";
     const cls = cat.higher ? "higher" : "lower";
-    const val = card[cat.key] ?? "—";
+    const val = formatNumber(card[cat.key]);
     const rating = card.ratings?.[cat.key] || "medium";
+    const icon = icons[cat.key] || "•";
     row.innerHTML = `
       <span class="stat-label ${cls}">
-        <span class="dot ${rating}"></span>
+        <span class="dot ${rating} hidden-dot"></span>
         ${cat.label}
       </span>
-      <span class="stat-value">${val} ${cat.unit}</span>
+      <span class="stat-value">${icon} ${val} ${cat.unit}</span>
     `;
-    if (isMyTurn) {
+    if (isMyTurn && !state.reveal) {
       row.onclick = () => playCategory(cat, state);
     } else {
       row.querySelector(".stat-label").style.opacity = "0.45";
@@ -408,40 +476,25 @@ function renderState(state) {
     ? `${state.pending.length} cards on the pile (tie)`
     : "";
 
-  const debug = document.getElementById("debugInfo");
-  debug.innerHTML = state.debug || "";
+  document.getElementById("debugInfo").textContent = state.debug || "";
+
+  const revealArea = document.getElementById("revealArea");
+  revealArea.innerHTML = "";
+  if (state.reveal && !isMyTurn) {
+    const r = state.reveal;
+    const btn = document.createElement("button");
+    btn.className = "reveal-btn";
+    btn.textContent = `${r.label}: ${formatNumber(r.opponentValue)} ${r.unit}`;
+    btn.onclick = () => confirmReveal(state);
+    revealArea.appendChild(btn);
+  }
+
+  renderJokerButton();
 
   const resultEl = document.getElementById("resultDisplay");
   resultEl.className = "result";
-  if (state.lastWinner === 0) {
-    resultEl.textContent = "Tie – cards stay on the pile";
-    resultEl.classList.add("tie");
-  } else if (state.lastWinner === myPlayer) {
-    resultEl.textContent = "";
-    showPopup("You win!");
-  } else if (state.lastWinner && state.lastWinner !== myPlayer) {
-    resultEl.textContent = "You lost";
-    resultEl.classList.add("lose");
-  } else {
-    resultEl.textContent = "";
-  }
+  resultEl.textContent = "";
 }
-
-// Swipe disabled – auto-rotate only
-// document.getElementById("cardImage").addEventListener("touchstart", e => {
-//   touchStartX = e.changedTouches[0].screenX;
-//   stopAutoRotate();
-// });
-// document.getElementById("cardImage").addEventListener("touchend", e => {
-//   const dx = e.changedTouches[0].screenX - touchStartX;
-//   if (Math.abs(dx) < 40) return;
-//   if (dx < 0) currentImageIndex = Math.min(currentImageIndex + 1, currentImages.length - 1);
-//   else currentImageIndex = Math.max(currentImageIndex - 1, 0);
-//   document.getElementById("cardImage").src = resolveImageSrc(currentImages[currentImageIndex]);
-//   document.querySelectorAll("#imageDots span").forEach((s, i) => {
-//     s.classList.toggle("active", i === currentImageIndex);
-//   });
-// });
 
 async function playCategory(cat, state) {
   const p1 = [...(state.p1 || [])];
@@ -450,12 +503,38 @@ async function playCategory(cat, state) {
 
   const c1 = p1[0];
   const c2 = p2[0];
-  const v1 = Number(c1[cat.key]);
-  const v2 = Number(c2[cat.key]);
+  const myCard = myPlayer === 1 ? c1 : c2;
+  const oppCard = myPlayer === 1 ? c2 : c1;
+
+  await update(gameRef, {
+    reveal: {
+      key: cat.key,
+      label: cat.label,
+      unit: cat.unit,
+      higher: cat.higher,
+      myValue: myCard[cat.key],
+      opponentValue: oppCard[cat.key],
+      by: myPlayer
+    },
+    debug: `Selected: ${cat.label} – waiting for opponent`
+  });
+}
+
+async function confirmReveal(state) {
+  const r = state.reveal;
+  if (!r) return;
+
+  const p1 = [...(state.p1 || [])];
+  const p2 = [...(state.p2 || [])];
+  const c1 = p1[0];
+  const c2 = p2[0];
+
+  const v1 = Number(c1[r.key]);
+  const v2 = Number(c2[r.key]);
 
   let winner = 0;
   if (!isNaN(v1) && !isNaN(v2)) {
-    if (cat.higher) {
+    if (r.higher) {
       if (v1 > v2) winner = 1;
       else if (v2 > v1) winner = 2;
     } else {
@@ -481,7 +560,7 @@ async function playCategory(cat, state) {
     nextTurn = winner;
   }
 
-  const debugText = `${cat.label}: ${c1.name} (${v1}) vs ${c2.name} (${v2}) → Winner: ${winner === 0 ? "Tie" : "Player " + winner}`;
+  const debugText = `${r.label}: ${c1.name} (${v1}) vs ${c2.name} (${v2}) → Winner: ${winner === 0 ? "Tie" : "Player " + winner}`;
 
   await update(gameRef, {
     p1: newP1,
@@ -489,7 +568,8 @@ async function playCategory(cat, state) {
     pending: newPending,
     turn: nextTurn,
     lastWinner: winner,
-    debug: debugText
+    debug: debugText,
+    reveal: null
   });
 }
 
