@@ -31,7 +31,6 @@
     text-align: center;
   }
   .status .turn { font-size: 1.1rem; font-weight: 600; color: var(--cyan); }
-  .status .you { font-size: 0.95rem; color: var(--orange); margin-top: 4px; }
   .status .counts { color: var(--muted); margin-top: 4px; }
   .card-display {
     background: var(--card-bg);
@@ -136,7 +135,6 @@
 <div id="gameScreen" class="hidden">
   <div class="status">
     <div class="turn" id="turnDisplay">Warte auf Spieler…</div>
-    <div class="you" id="youDisplay"></div>
     <div class="counts" id="countDisplay"></div>
   </div>
   <div class="pile-info" id="pileInfo"></div>
@@ -177,7 +175,7 @@ const CATEGORIES = [
   { key: "empty_weight", label: "EMPTY", higher: false, unit: "kg" },
   { key: "range", label: "RANGE", higher: true, unit: "km" },
   { key: "climb", label: "CLIMB", higher: true, unit: "m/s" },
-  { key: "t_w_ratio", label: "T/W", higher: true, unit: "" },
+  { key: "tw_ratio", label: "T/W", higher: true, unit: "" },
   { key: "payload", label: "PAYLOAD", higher: false, unit: "kg" }
 ];
 
@@ -249,7 +247,7 @@ function listenToGame() {
   onValue(gameRef, (snap) => {
     const state = snap.val();
     if (!state) return;
-    if (state.status === "playing" && document.getElementById("lobby").style.display !== "none") {
+    if (state.status === "playing") {
       document.getElementById("lobby").classList.add("hidden");
       document.getElementById("gameScreen").classList.remove("hidden");
     }
@@ -259,28 +257,27 @@ function listenToGame() {
 
 function renderState(state) {
   const myDeck = myPlayer === 1 ? state.player1 : state.player2;
-  const oppDeck = myPlayer === 1 ? state.player2 : state.player1;
   if (!myDeck || myDeck.length === 0) {
     endGame(myPlayer === 1 ? 2 : 1);
     return;
   }
   const card = myDeck[0];
-  document.getElementById("turnDisplay").textContent = `Spieler ${state.currentPlayer} ist am Zug`;
-  document.getElementById("youDisplay").textContent = `Du bist Spieler ${myPlayer}`;
+  const isMyTurn = state.currentPlayer === myPlayer && state.status === "playing";
+  document.getElementById("turnDisplay").textContent = isMyTurn ? "Du bist am Zug" : "Gegner ist am Zug";
   document.getElementById("countDisplay").textContent = `Karten: ${state.player1?.length || 0} | ${state.player2?.length || 0}`;
   document.getElementById("cardImage").src = `images/${card.image}`;
   document.getElementById("cardName").textContent = card.name;
 
   const stats = document.getElementById("statsContainer");
   stats.innerHTML = "";
-  const isMyTurn = state.currentPlayer === myPlayer && state.status === "playing";
   CATEGORIES.forEach(cat => {
     const row = document.createElement("div");
     row.className = "stat-row";
     const cls = cat.higher ? "higher" : "lower";
+    const val = card[cat.key] ?? "—";
     row.innerHTML = `
       <span class="stat-label ${cls}">${cat.label}</span>
-      <span class="stat-value">${card[cat.key]} ${cat.unit}</span>
+      <span class="stat-value">${val} ${cat.unit}</span>
     `;
     if (isMyTurn) {
       row.onclick = () => playCategory(cat, state);
@@ -294,11 +291,21 @@ function renderState(state) {
   document.getElementById("pileInfo").textContent = state.pending?.length
     ? `${state.pending.length} Karten liegen (Gleichstand)`
     : "";
+
   const resultEl = document.getElementById("resultDisplay");
-  resultEl.textContent = state.lastResult || "";
   resultEl.className = "result";
-  if (state.lastResult?.includes("gewinnt")) resultEl.classList.add(state.lastResult.includes(`Spieler ${myPlayer}`) ? "win" : "lose");
-  if (state.lastResult?.includes("Gleichstand")) resultEl.classList.add("tie");
+  if (state.lastResult === "win") {
+    resultEl.textContent = "Du hast gewonnen!";
+    resultEl.classList.add("win");
+  } else if (state.lastResult === "lose") {
+    resultEl.textContent = "Du hast verloren";
+    resultEl.classList.add("lose");
+  } else if (state.lastResult === "tie") {
+    resultEl.textContent = "Gleichstand – Karten bleiben liegen";
+    resultEl.classList.add("tie");
+  } else {
+    resultEl.textContent = "";
+  }
 }
 
 async function playCategory(cat, state) {
@@ -315,30 +322,43 @@ async function playCategory(cat, state) {
     else if (v2 < v1) winner = 2;
   }
 
-  let newState = { ...state, lastResult: "" };
   const cardsToWin = [p1Card, p2Card, ...(state.pending || [])];
+  let newPlayer1 = [...state.player1];
+  let newPlayer2 = [...state.player2];
+  let newPending = [...(state.pending || [])];
+  let lastResult = "";
+  let nextPlayer = state.currentPlayer;
 
   if (winner === 0) {
-    newState.lastResult = "Gleichstand – Karten bleiben liegen";
-    newState.pending = [...(state.pending || []), state.player1.shift(), state.player2.shift()];
+    lastResult = "tie";
+    newPending.push(newPlayer1.shift(), newPlayer2.shift());
+    nextPlayer = state.currentPlayer === 1 ? 2 : 1;
   } else {
-    newState.lastResult = `Spieler ${winner} gewinnt!`;
-    if (winner === 1) newState.player1 = [...state.player1.slice(1), ...cardsToWin];
-    else newState.player2 = [...state.player2.slice(1), ...cardsToWin];
-    newState.player1 = newState.player1 || state.player1.slice(1);
-    newState.player2 = newState.player2 || state.player2.slice(1);
-    if (winner === 1) newState.player2 = state.player2.slice(1);
-    else newState.player1 = state.player1.slice(1);
-    newState.pending = [];
+    lastResult = (winner === myPlayer) ? "win" : "lose";
+    if (winner === 1) {
+      newPlayer1 = [...newPlayer1.slice(1), ...cardsToWin];
+      newPlayer2 = newPlayer2.slice(1);
+    } else {
+      newPlayer2 = [...newPlayer2.slice(1), ...cardsToWin];
+      newPlayer1 = newPlayer1.slice(1);
+    }
+    newPending = [];
+    nextPlayer = winner; // Gewinner bleibt am Zug
   }
-  newState.currentPlayer = state.currentPlayer === 1 ? 2 : 1;
-  await update(gameRef, newState);
+
+  await update(gameRef, {
+    player1: newPlayer1,
+    player2: newPlayer2,
+    pending: newPending,
+    currentPlayer: nextPlayer,
+    lastResult: lastResult
+  });
 }
 
 function endGame(winner) {
   document.getElementById("gameScreen").classList.add("hidden");
   document.getElementById("gameOverScreen").classList.remove("hidden");
-  document.getElementById("winnerText").textContent = `Spieler ${winner} hat alle Karten!`;
+  document.getElementById("winnerText").textContent = winner === myPlayer ? "Du hast gewonnen!" : "Du hast verloren";
 }
 </script>
 </body>
