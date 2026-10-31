@@ -24,19 +24,20 @@
     padding: 12px;
   }
   body.player-light {
-    background: #f8fafc;
-    color: #0f172a;
+    background: #e8eef5;
+    color: #1e293b;
   }
   body.player-light .card-display {
-    background: #ffffff;
-    border-color: #e2e8f0;
+    background: #f8fafc;
+    border-color: #cbd5e1;
   }
   body.player-light .stat-row { border-color: #e2e8f0; }
   body.player-light .stat-row:hover, body.player-light .stat-row:active { background: #f1f5f9; }
   body.player-light .status-line { color: #475569; }
   body.player-light .status-line .turn { color: #0369a1; }
   body.player-light .debug { background: #f1f5f9; color: #334155; }
-  body.player-light .card-image { background: #f1f5f9; }
+  body.player-light .card-image { background: #e2e8f0; }
+  body.player-light .header { color: #0f172a; }
   body.player-light button, body.player-light .reveal-btn {
     background: #0ea5e9;
     color: #ffffff;
@@ -326,6 +327,7 @@ window.createRoom = async function() {
     <div class="room-code">${roomCode}</div>
     <div>Waiting for player 2…</div>
   `;
+  document.body.classList.remove("player-light");
   listenToGame();
 };
 
@@ -453,8 +455,9 @@ function useJoker() {
 }
 
 function renderState(state) {
-  document.body.classList.toggle("player-light", myPlayer === 1);
-  document.body.classList.toggle("player-dark", myPlayer === 2);
+  if (!document.getElementById("gameScreen").classList.contains("hidden")) {
+    document.body.classList.toggle("player-light", myPlayer === 1);
+  }
 
   const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
   if (myCards.length === 0) {
