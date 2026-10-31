@@ -398,14 +398,39 @@ function useJoker() {
       document.querySelectorAll(".dot").forEach(d => d.classList.add("hidden-dot"));
     }, 3000);
   } else if (type === "peek") {
-    const state = null; // will be handled via current render
-    // Peek is applied in render by checking a flag; for simplicity we trigger a visual
-    const img = document.getElementById("cardImage");
-    img.classList.add("peek");
-    setTimeout(() => img.classList.remove("peek"), 3000);
+    // Peek: show opponent's schema image with frame
+    gameRef && get(gameRef).then(snap => {
+      const state = snap.val();
+      if (!state) return;
+      const oppCards = myPlayer === 1 ? (state.p2 || []) : (state.p1 || []);
+      if (!oppCards.length) return;
+      const oppImg = getImages(oppCards[0])[0];
+      const img = document.getElementById("cardImage");
+      const original = img.src;
+      img.src = resolveImageSrc(oppImg);
+      img.classList.add("peek");
+      setTimeout(() => {
+        img.src = original;
+        img.classList.remove("peek");
+      }, 3000);
+    });
   } else if (type === "skip") {
-    // Skip is handled by the player clicking a category after; for now just notify
-    document.getElementById("debugInfo").textContent = "Joker: Skip – next card will be loaded on next play";
+    // Skip own card, opponent keeps theirs
+    gameRef && get(gameRef).then(async snap => {
+      const state = snap.val();
+      if (!state) return;
+      const p1 = [...(state.p1 || [])];
+      const p2 = [...(state.p2 || [])];
+      if (myPlayer === 1 && p1.length) {
+        const skipped = p1.shift();
+        p1.push(skipped);
+        await update(gameRef, { p1, debug: "Joker: Player 1 skipped card" });
+      } else if (myPlayer === 2 && p2.length) {
+        const skipped = p2.shift();
+        p2.push(skipped);
+        await update(gameRef, { p2, debug: "Joker: Player 2 skipped card" });
+      }
+    });
   }
 }
 
@@ -461,7 +486,7 @@ function renderState(state) {
         <span class="dot ${rating} hidden-dot"></span>
         ${cat.label}
       </span>
-      <span class="stat-value">${icon} ${val} ${cat.unit}</span>
+      <span class="stat-value">${val} ${cat.unit}</span>
     `;
     if (isMyTurn && !state.reveal) {
       row.onclick = () => playCategory(cat, state);
@@ -485,26 +510,22 @@ function renderState(state) {
     const btn = document.createElement("button");
     btn.className = "reveal-btn";
 
-    if (r.confirmedBy === null) {
-      // Only the chooser sees their own value first
-      if (myPlayer === r.by) {
-        btn.textContent = `Confirm ${r.label}: ${formatNumber(r.myValue)} ${r.unit}`;
-        btn.onclick = () => confirmReveal(state);
-      } else {
-        btn.textContent = `${r.label} chosen – waiting for opponent to confirm`;
-        btn.disabled = true;
-      }
+    const step = r.step || 1;
+
+    if (step === 1 && myPlayer === r.by) {
+      btn.textContent = `Confirm ${r.label}: ${formatNumber(r.myValue)} ${r.unit}`;
+      btn.onclick = () => confirmReveal(state);
+    } else if (step === 2 && myPlayer !== r.by) {
+      btn.textContent = `${r.label}: ${formatNumber(r.myValue)} ${r.unit}`;
+      btn.onclick = () => confirmReveal(state);
+    } else if (step === 3 && myPlayer !== r.by) {
+      const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
+      const myVal = myCards[0]?.[r.key];
+      btn.textContent = `Confirm ${r.label}: ${formatNumber(myVal)} ${r.unit}`;
+      btn.onclick = () => confirmReveal(state);
     } else {
-      // Chooser confirmed → opponent sees their own value and must confirm
-      if (myPlayer !== r.by) {
-        const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
-        const myVal = myCards[0]?.[r.key];
-        btn.textContent = `Confirm ${r.label}: ${formatNumber(myVal)} ${r.unit}`;
-        btn.onclick = () => confirmReveal(state);
-      } else {
-        btn.textContent = `${r.label} confirmed – waiting for opponent`;
-        btn.disabled = true;
-      }
+      btn.textContent = "Waiting…";
+      btn.disabled = true;
     }
     revealArea.appendChild(btn);
   }
@@ -533,9 +554,9 @@ async function playCategory(cat, state) {
       higher: cat.higher,
       myValue: myCard[cat.key],
       by: myPlayer,
-      confirmedBy: null
+      step: 1
     },
-    debug: `Selected: ${cat.label} – confirm on both sides`
+    debug: `Selected: ${cat.label} – step 1`
   });
 }
 
@@ -543,17 +564,26 @@ async function confirmReveal(state) {
   const r = state.reveal;
   if (!r) return;
 
-  // First confirmation by the player who chose
-  if (r.confirmedBy === null && myPlayer === r.by) {
+  const step = r.step || 1;
+
+  if (step === 1 && myPlayer === r.by) {
     await update(gameRef, {
-      reveal: { ...r, confirmedBy: myPlayer },
-      debug: `${r.label} confirmed by Player ${myPlayer} – waiting for opponent`
+      reveal: { ...r, step: 2 },
+      debug: `${r.label} confirmed by chooser – opponent sees value`
     });
     return;
   }
 
-  // Second confirmation by the opponent → resolve
-  if (r.confirmedBy !== null && myPlayer !== r.by) {
+  if (step === 2 && myPlayer !== r.by) {
+    await update(gameRef, {
+      reveal: { ...r, step: 3 },
+      debug: `Opponent saw chooser's value – now confirms own value`
+    });
+    return;
+  }
+
+  if (step === 3 && myPlayer !== r.by) {
+    // Resolve
     const p1 = [...(state.p1 || [])];
     const p2 = [...(state.p2 || [])];
     const c1 = p1[0];
