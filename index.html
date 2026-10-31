@@ -191,7 +191,7 @@
   <button onclick="createRoom()">Create Room</button>
   <div style="margin: 24px 0; color: var(--muted);">or</div>
   <div>
-    <input id="joinCode" type="text" maxlength="4" placeholder="CODE" style="text-transform:uppercase">
+    <input id="joinCode" type="text" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="CODE">
     <button onclick="joinRoom()">Join</button>
   </div>
   <div id="lobbyStatus" style="margin-top:20px; color:var(--muted);"></div>
@@ -282,7 +282,7 @@ function shuffle(arr) {
 }
 
 function generateCode() {
-  return Math.random().toString(36).substring(2, 6).toUpperCase();
+  return String(Math.floor(1000 + Math.random() * 9000));
 }
 
 window.createRoom = async function() {
@@ -312,7 +312,7 @@ window.createRoom = async function() {
 };
 
 window.joinRoom = async function() {
-  const code = document.getElementById("joinCode").value.trim().toUpperCase();
+  const code = document.getElementById("joinCode").value.trim();
   if (code.length !== 4) return;
   await loadCards();
   roomCode = code;
@@ -513,15 +513,15 @@ function renderState(state) {
     const step = r.step || 1;
 
     if (step === 1 && myPlayer === r.by) {
-      btn.textContent = `Confirm ${r.label}: ${formatNumber(r.myValue)} ${r.unit}`;
+      btn.textContent = `Your ${r.label}: ${formatNumber(r.myValue)} ${r.unit}`;
       btn.onclick = () => confirmReveal(state);
     } else if (step === 2 && myPlayer !== r.by) {
-      btn.textContent = `${r.label}: ${formatNumber(r.myValue)} ${r.unit}`;
+      btn.textContent = `Opponent's ${r.label}: ${formatNumber(r.myValue)} ${r.unit}`;
       btn.onclick = () => confirmReveal(state);
     } else if (step === 3 && myPlayer !== r.by) {
       const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
       const myVal = myCards[0]?.[r.key];
-      btn.textContent = `Confirm ${r.label}: ${formatNumber(myVal)} ${r.unit}`;
+      btn.textContent = `Your ${r.label}: ${formatNumber(myVal)} ${r.unit}`;
       btn.onclick = () => confirmReveal(state);
     } else {
       btn.textContent = "Waiting…";
@@ -631,7 +631,23 @@ async function confirmReveal(state) {
       debug: debugText,
       reveal: null
     });
+
+    // Flash feedback
+    if (winner === myPlayer) flash("green");
+    else if (winner !== 0) flash("red");
   }
+}
+
+function flash(color) {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    background: ${color === "green" ? "rgba(74,222,128,0.35)" : "rgba(248,113,113,0.35)"};
+    transition: opacity 0.4s;
+  `;
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.style.opacity = "0", 50);
+  setTimeout(() => overlay.remove(), 450);
 }
 
 function endGame(winner) {
