@@ -78,11 +78,11 @@
   .result.lose { color: #f87171; }
   .result.tie { color: #fbbf24; }
   .hidden { display: none; }
-  .start-screen, .game-over {
+  .start-screen, .game-over, .lobby {
     text-align: center;
     padding: 40px 16px;
   }
-  button {
+  button, input {
     background: var(--cyan);
     color: #000;
     border: none;
@@ -93,14 +93,27 @@
     cursor: pointer;
     margin: 8px;
   }
+  input {
+    background: #243044;
+    color: white;
+    text-align: center;
+    width: 140px;
+    letter-spacing: 4px;
+    font-size: 1.2rem;
+  }
   .pile-info {
     font-size: 0.85rem;
     color: var(--muted);
     text-align: center;
     margin-bottom: 8px;
   }
-  .player-select { margin: 20px 0; }
-  .player-select button { min-width: 180px; }
+  .room-code {
+    font-size: 2rem;
+    letter-spacing: 8px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin: 16px 0;
+  }
 </style>
 </head>
 <body>
@@ -110,41 +123,53 @@
   <div>Kampfflieger Top Ass</div>
 </div>
 
-<div id="startScreen" class="start-screen">
-  <p style="margin-bottom:8px;">Pass and Play (ein Gerät)</p>
-  <div class="player-select">
-    <button onclick="startGame(1)">Ich bin Spieler 1</button>
-    <button onclick="startGame(2)">Ich bin Spieler 2</button>
+<div id="lobby" class="lobby">
+  <button onclick="createRoom()">Runde erstellen</button>
+  <div style="margin: 24px 0; color: var(--muted);">oder</div>
+  <div>
+    <input id="joinCode" type="text" maxlength="4" placeholder="CODE" style="text-transform:uppercase">
+    <button onclick="joinRoom()">Beitreten</button>
   </div>
-  <p style="color:var(--muted); font-size:0.85rem; margin-top:12px;">
-    Reicht das Handy nach jedem Zug an den anderen Spieler weiter.
-  </p>
+  <div id="lobbyStatus" style="margin-top:20px; color:var(--muted);"></div>
 </div>
 
 <div id="gameScreen" class="hidden">
   <div class="status">
-    <div class="turn" id="turnDisplay">Spieler 1 ist am Zug</div>
-    <div class="you" id="youDisplay">Du bist Spieler 1</div>
-    <div class="counts" id="countDisplay">Karten: 16 | 16</div>
+    <div class="turn" id="turnDisplay">Warte auf Spieler…</div>
+    <div class="you" id="youDisplay"></div>
+    <div class="counts" id="countDisplay"></div>
   </div>
-
   <div class="pile-info" id="pileInfo"></div>
-
-  <div class="card-display" id="cardDisplay">
+  <div class="card-display">
     <img class="card-image" id="cardImage" src="" alt="">
     <div class="card-name" id="cardName">—</div>
     <div class="stats" id="statsContainer"></div>
   </div>
-
   <div class="result" id="resultDisplay"></div>
 </div>
 
 <div id="gameOverScreen" class="game-over hidden">
-  <h2 id="winnerText">Spieler 1 gewinnt!</h2>
+  <h2 id="winnerText"></h2>
   <button onclick="location.reload()">Neues Spiel</button>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCaBiEDrDw_tDxGSwEf6vBmQbPPDq_Ftu8",
+  authDomain: "winnercards-e0343.firebaseapp.com",
+  databaseURL: "https://winnercards-e0343-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "winnercards-e0343",
+  storageBucket: "winnercards-e0343.firebasestorage.app",
+  messagingSenderId: "563899363919",
+  appId: "1:563899363919:web:ea3b085a70268ead2bf03a"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 const CATEGORIES = [
   { key: "speed", label: "SPEED", higher: true, unit: "km/h" },
   { key: "thrust_hubkraft", label: "HUBKRAFT", higher: true, unit: "kg" },
@@ -156,61 +181,99 @@ const CATEGORIES = [
   { key: "payload", label: "PAYLOAD", higher: false, unit: "kg" }
 ];
 
+let roomCode = null;
+let myPlayer = null;
 let cards = [];
-let player1 = [], player2 = [];
-let currentPlayer = 1;
-let myPlayer = 1;
-let pendingCards = [];
-let gameActive = false;
+let gameRef = null;
 
-async function loadData() {
+async function loadCards() {
   const res = await fetch("kampfflieger_topass_dataset.json");
   const data = await res.json();
   cards = data.cards;
 }
 
 function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [a[i], a[j]] = [a[j], a[i]];
   }
-  return arr;
+  return a;
 }
 
-async function startGame(player) {
-  myPlayer = player;
-  await loadData();
-  const deck = shuffle([...cards]);
-  player1 = deck.slice(0, 16);
-  player2 = deck.slice(16);
-  currentPlayer = Math.random() < 0.5 ? 1 : 2;
-  pendingCards = [];
-  gameActive = true;
-  document.getElementById("startScreen").classList.add("hidden");
-  document.getElementById("gameScreen").classList.remove("hidden");
-  updateUI();
+function generateCode() {
+  return Math.random().toString(36).substring(2, 6).toUpperCase();
 }
 
-function getCurrentDeck() {
-  return currentPlayer === 1 ? player1 : player2;
-}
+window.createRoom = async function() {
+  await loadCards();
+  roomCode = generateCode();
+  myPlayer = 1;
+  const deck = shuffle(cards);
+  const initialState = {
+    player1: deck.slice(0, 16),
+    player2: deck.slice(16),
+    currentPlayer: Math.random() < 0.5 ? 1 : 2,
+    pending: [],
+    status: "waiting",
+    lastResult: ""
+  };
+  gameRef = ref(db, `rooms/${roomCode}`);
+  await set(gameRef, initialState);
+  document.getElementById("lobbyStatus").innerHTML = `
+    <div>Code:</div>
+    <div class="room-code">${roomCode}</div>
+    <div>Warte auf Spieler 2…</div>
+  `;
+  listenToGame();
+};
 
-function updateUI() {
-  const deck = getCurrentDeck();
-  if (deck.length === 0) {
-    endGame(currentPlayer === 1 ? 2 : 1);
+window.joinRoom = async function() {
+  const code = document.getElementById("joinCode").value.trim().toUpperCase();
+  if (code.length !== 4) return;
+  roomCode = code;
+  myPlayer = 2;
+  gameRef = ref(db, `rooms/${roomCode}`);
+  const snap = await get(gameRef);
+  if (!snap.exists()) {
+    document.getElementById("lobbyStatus").textContent = "Raum nicht gefunden";
     return;
   }
-  const card = deck[0];
-  document.getElementById("turnDisplay").textContent = `Spieler ${currentPlayer} ist am Zug`;
+  await update(gameRef, { status: "playing" });
+  document.getElementById("lobby").classList.add("hidden");
+  document.getElementById("gameScreen").classList.remove("hidden");
+  listenToGame();
+};
+
+function listenToGame() {
+  onValue(gameRef, (snap) => {
+    const state = snap.val();
+    if (!state) return;
+    if (state.status === "playing" && document.getElementById("lobby").style.display !== "none") {
+      document.getElementById("lobby").classList.add("hidden");
+      document.getElementById("gameScreen").classList.remove("hidden");
+    }
+    renderState(state);
+  });
+}
+
+function renderState(state) {
+  const myDeck = myPlayer === 1 ? state.player1 : state.player2;
+  const oppDeck = myPlayer === 1 ? state.player2 : state.player1;
+  if (!myDeck || myDeck.length === 0) {
+    endGame(myPlayer === 1 ? 2 : 1);
+    return;
+  }
+  const card = myDeck[0];
+  document.getElementById("turnDisplay").textContent = `Spieler ${state.currentPlayer} ist am Zug`;
   document.getElementById("youDisplay").textContent = `Du bist Spieler ${myPlayer}`;
-  document.getElementById("countDisplay").textContent = `Karten: ${player1.length} | ${player2.length}`;
+  document.getElementById("countDisplay").textContent = `Karten: ${state.player1?.length || 0} | ${state.player2?.length || 0}`;
   document.getElementById("cardImage").src = `images/${card.image}`;
   document.getElementById("cardName").textContent = card.name;
 
   const stats = document.getElementById("statsContainer");
   stats.innerHTML = "";
-  const isMyTurn = currentPlayer === myPlayer;
+  const isMyTurn = state.currentPlayer === myPlayer && state.status === "playing";
   CATEGORIES.forEach(cat => {
     const row = document.createElement("div");
     row.className = "stat-row";
@@ -220,7 +283,7 @@ function updateUI() {
       <span class="stat-value">${card[cat.key]} ${cat.unit}</span>
     `;
     if (isMyTurn) {
-      row.onclick = () => playCategory(cat);
+      row.onclick = () => playCategory(cat, state);
     } else {
       row.style.opacity = "0.5";
       row.style.cursor = "default";
@@ -228,19 +291,19 @@ function updateUI() {
     stats.appendChild(row);
   });
 
-  const pileInfo = document.getElementById("pileInfo");
-  pileInfo.textContent = pendingCards.length > 0 
-    ? `${pendingCards.length} Karten liegen (Gleichstand)` 
+  document.getElementById("pileInfo").textContent = state.pending?.length
+    ? `${state.pending.length} Karten liegen (Gleichstand)`
     : "";
-  document.getElementById("resultDisplay").textContent = "";
+  const resultEl = document.getElementById("resultDisplay");
+  resultEl.textContent = state.lastResult || "";
+  resultEl.className = "result";
+  if (state.lastResult?.includes("gewinnt")) resultEl.classList.add(state.lastResult.includes(`Spieler ${myPlayer}`) ? "win" : "lose");
+  if (state.lastResult?.includes("Gleichstand")) resultEl.classList.add("tie");
 }
 
-function playCategory(cat) {
-  if (!gameActive || currentPlayer !== myPlayer) return;
-  const p1Card = player1[0];
-  const p2Card = player2[0];
-  if (!p1Card || !p2Card) return;
-
+async function playCategory(cat, state) {
+  const p1Card = state.player1[0];
+  const p2Card = state.player2[0];
   const v1 = p1Card[cat.key];
   const v2 = p2Card[cat.key];
   let winner = 0;
@@ -252,29 +315,27 @@ function playCategory(cat) {
     else if (v2 < v1) winner = 2;
   }
 
-  const resultEl = document.getElementById("resultDisplay");
-  const cardsToWin = [p1Card, p2Card, ...pendingCards];
+  let newState = { ...state, lastResult: "" };
+  const cardsToWin = [p1Card, p2Card, ...(state.pending || [])];
 
   if (winner === 0) {
-    resultEl.className = "result tie";
-    resultEl.textContent = "Gleichstand – Karten bleiben liegen";
-    pendingCards.push(player1.shift(), player2.shift());
+    newState.lastResult = "Gleichstand – Karten bleiben liegen";
+    newState.pending = [...(state.pending || []), state.player1.shift(), state.player2.shift()];
   } else {
-    resultEl.className = winner === myPlayer ? "result win" : "result lose";
-    resultEl.textContent = `Spieler ${winner} gewinnt!`;
-    if (winner === 1) player1.push(...cardsToWin);
-    else player2.push(...cardsToWin);
-    player1.shift();
-    player2.shift();
-    pendingCards = [];
+    newState.lastResult = `Spieler ${winner} gewinnt!`;
+    if (winner === 1) newState.player1 = [...state.player1.slice(1), ...cardsToWin];
+    else newState.player2 = [...state.player2.slice(1), ...cardsToWin];
+    newState.player1 = newState.player1 || state.player1.slice(1);
+    newState.player2 = newState.player2 || state.player2.slice(1);
+    if (winner === 1) newState.player2 = state.player2.slice(1);
+    else newState.player1 = state.player1.slice(1);
+    newState.pending = [];
   }
-
-  currentPlayer = currentPlayer === 1 ? 2 : 1;
-  setTimeout(updateUI, 1200);
+  newState.currentPlayer = state.currentPlayer === 1 ? 2 : 1;
+  await update(gameRef, newState);
 }
 
 function endGame(winner) {
-  gameActive = false;
   document.getElementById("gameScreen").classList.add("hidden");
   document.getElementById("gameOverScreen").classList.remove("hidden");
   document.getElementById("winnerText").textContent = `Spieler ${winner} hat alle Karten!`;
