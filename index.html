@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WinnerCards – 4th & 5th Gen Fighters</title>
+<title>WinnerCards: 4th & 5th Gen Fighters</title>
 <style>
   :root {
     --bg: #0f1419;
@@ -13,7 +13,6 @@
     --white: #ffffff;
     --muted: #8b9bb4;
     --green: #4ade80;
-    --yellow: #fbbf24;
     --red: #f87171;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,17 +23,19 @@
     min-height: 100vh;
     padding: 12px;
   }
-  .header { text-align: center; margin-bottom: 16px; }
-  .header h1 { font-size: 1.4rem; }
-  .status {
-    background: #243044;
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 16px;
+  .header {
     text-align: center;
+    margin-bottom: 8px;
+    font-size: 1.15rem;
+    font-weight: 700;
   }
-  .status .turn { font-size: 1.1rem; font-weight: 600; color: var(--cyan); }
-  .status .counts { color: var(--muted); margin-top: 4px; }
+  .status-line {
+    text-align: center;
+    margin-bottom: 12px;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .status-line .turn { color: var(--cyan); font-weight: 600; }
   .card-display {
     background: var(--card-bg);
     border-radius: 16px;
@@ -45,15 +46,16 @@
   }
   .card-image {
     width: 100%;
-    height: 180px;
+    height: 200px;
     object-fit: contain;
     background: #111820;
+    cursor: grab;
   }
   .card-name {
     text-align: center;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    padding: 12px 8px 4px;
+    padding: 10px 8px 4px;
   }
   .stats { padding: 0 12px 12px; }
   .stat-row {
@@ -69,26 +71,23 @@
   .stat-label { font-weight: 600; display: flex; align-items: center; gap: 6px; }
   .stat-label.higher { color: var(--cyan); }
   .stat-label.lower { color: var(--orange); }
-  .stat-value { font-weight: 500; }
+  .stat-value { font-weight: 500; color: var(--white); }
   .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
   }
   .dot.better { background: var(--green); }
   .dot.medium { background: #ffffff; }
   .dot.worse { background: var(--red); }
   .result {
     text-align: center;
-    padding: 16px;
-    font-size: 1.2rem;
+    padding: 12px;
+    font-size: 1.1rem;
     font-weight: 700;
-    min-height: 60px;
+    min-height: 48px;
   }
   .result.win { color: var(--green); }
   .result.lose { color: var(--red); }
-  .result.tie { color: var(--yellow); }
+  .result.tie { color: #fbbf24; }
   .hidden { display: none; }
   .lobby, .game-over { text-align: center; padding: 40px 16px; }
   button, input {
@@ -131,6 +130,18 @@
     font-size: 0.8rem;
     color: var(--muted);
     text-align: left;
+    position: relative;
+  }
+  .popup {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    background: #1a2332;
+    color: var(--green);
+    font-weight: 700;
+    text-align: center;
+    padding: 8px;
+    border-radius: 8px;
+    z-index: 2;
   }
   .image-dots {
     text-align: center;
@@ -138,8 +149,7 @@
   }
   .image-dots span {
     display: inline-block;
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: #4a5568;
     margin: 0 3px;
@@ -149,10 +159,8 @@
 </head>
 <body>
 
-<div class="header">
-  <h1>WinnerCards</h1>
-  <div>4th & 5th Gen Fighters</div>
-</div>
+<div class="header">WinnerCards: 4th & 5th Gen Fighters</div>
+<div class="status-line" id="statusLine">Waiting…</div>
 
 <div id="lobby" class="lobby">
   <button onclick="createRoom()">Create Room</button>
@@ -165,10 +173,6 @@
 </div>
 
 <div id="gameScreen" class="hidden">
-  <div class="status">
-    <div class="turn" id="turnDisplay">Waiting for player…</div>
-    <div class="counts" id="countDisplay"></div>
-  </div>
   <div class="debug" id="debugInfo"></div>
   <div class="pile-info" id="pileInfo"></div>
   <div class="card-display">
@@ -208,6 +212,9 @@ let cards = [];
 let criteria = [];
 let gameRef = null;
 let currentImageIndex = 0;
+let currentImages = [];
+let popupTimeout = null;
+let autoRotateTimer = null;
 
 async function loadCards() {
   const res = await fetch("4and5genfighters.json");
@@ -295,6 +302,39 @@ function resolveImageSrc(src) {
   return `images/${src}`;
 }
 
+function startAutoRotate() {
+  if (autoRotateTimer) clearInterval(autoRotateTimer);
+  if (currentImages.length <= 1) return;
+  autoRotateTimer = setInterval(() => {
+    currentImageIndex = (currentImageIndex + 1) % currentImages.length;
+    document.getElementById("cardImage").src = resolveImageSrc(currentImages[currentImageIndex]);
+    document.querySelectorAll("#imageDots span").forEach((s, i) => {
+      s.classList.toggle("active", i === currentImageIndex);
+    });
+  }, 3500);
+}
+
+function stopAutoRotate() {
+  if (autoRotateTimer) {
+    clearInterval(autoRotateTimer);
+    autoRotateTimer = null;
+  }
+}
+
+function showPopup(text) {
+  const debug = document.getElementById("debugInfo");
+  let popup = debug.querySelector(".popup");
+  if (!popup) {
+    popup = document.createElement("div");
+    popup.className = "popup";
+    debug.appendChild(popup);
+  }
+  popup.textContent = text;
+  popup.style.display = "block";
+  if (popupTimeout) clearTimeout(popupTimeout);
+  popupTimeout = setTimeout(() => { popup.style.display = "none"; }, 1800);
+}
+
 function renderState(state) {
   const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
   if (myCards.length === 0) {
@@ -303,18 +343,23 @@ function renderState(state) {
   }
   const card = myCards[0];
   const isMyTurn = state.turn === myPlayer && state.status === "playing";
+
+  document.getElementById("statusLine").innerHTML = `
+    <span class="turn">${isMyTurn ? "Your turn" : "Opponent's turn"}</span>
+    · Your cards: ${myCards.length}
+  `;
+
+  currentImages = getImages(card);
   currentImageIndex = 0;
-
-  document.getElementById("turnDisplay").textContent = isMyTurn ? "Your turn" : "Opponent's turn";
-  document.getElementById("countDisplay").textContent = `Your cards: ${myCards.length}`;
-
-  const images = getImages(card);
   const imgEl = document.getElementById("cardImage");
-  imgEl.src = images.length ? resolveImageSrc(images[0]) : "";
-  const dots = document.getElementById("imageDots");
-  dots.innerHTML = images.map((_, i) => `<span class="${i===0?'active':''}"></span>`).join("");
+  imgEl.src = currentImages.length ? resolveImageSrc(currentImages[0]) : "";
+  startAutoRotate();
 
-  document.getElementById("cardName").textContent = card.name;
+  const dots = document.getElementById("imageDots");
+  dots.innerHTML = currentImages.map((_, i) => `<span class="${i===0?'active':''}"></span>`).join("");
+
+  const flag = card.flag || "";
+  document.getElementById("cardName").textContent = `${flag} ${card.name}`.trim();
 
   const stats = document.getElementById("statsContainer");
   stats.innerHTML = "";
@@ -334,7 +379,7 @@ function renderState(state) {
     if (isMyTurn) {
       row.onclick = () => playCategory(cat, state);
     } else {
-      row.style.opacity = "0.5";
+      row.querySelector(".stat-label").style.opacity = "0.45";
       row.style.cursor = "default";
     }
     stats.appendChild(row);
@@ -353,8 +398,8 @@ function renderState(state) {
     resultEl.textContent = "Tie – cards stay on the pile";
     resultEl.classList.add("tie");
   } else if (state.lastWinner === myPlayer) {
-    resultEl.textContent = "You won!";
-    resultEl.classList.add("win");
+    resultEl.textContent = "";
+    showPopup("You win!");
   } else if (state.lastWinner && state.lastWinner !== myPlayer) {
     resultEl.textContent = "You lost";
     resultEl.classList.add("lose");
@@ -362,6 +407,23 @@ function renderState(state) {
     resultEl.textContent = "";
   }
 }
+
+// Simple swipe
+let touchStartX = 0;
+document.getElementById("cardImage").addEventListener("touchstart", e => {
+  touchStartX = e.changedTouches[0].screenX;
+  stopAutoRotate();
+});
+document.getElementById("cardImage").addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if (Math.abs(dx) < 40) return;
+  if (dx < 0) currentImageIndex = Math.min(currentImageIndex + 1, currentImages.length - 1);
+  else currentImageIndex = Math.max(currentImageIndex - 1, 0);
+  document.getElementById("cardImage").src = resolveImageSrc(currentImages[currentImageIndex]);
+  document.querySelectorAll("#imageDots span").forEach((s, i) => {
+    s.classList.toggle("active", i === currentImageIndex);
+  });
+});
 
 async function playCategory(cat, state) {
   const p1 = [...(state.p1 || [])];
@@ -416,8 +478,7 @@ async function playCategory(cat, state) {
 function endGame(winner) {
   document.getElementById("gameScreen").classList.add("hidden");
   document.getElementById("gameOverScreen").classList.remove("hidden");
-  const text = winner === myPlayer ? "" : "You lost";
-  document.getElementById("winnerText").textContent = text;
+  document.getElementById("winnerText").textContent = winner === myPlayer ? "" : "You lost";
 }
 </script>
 </body>

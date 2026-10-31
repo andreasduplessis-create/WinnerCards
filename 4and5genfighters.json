@@ -115,10 +115,11 @@
       },
       "images": [
         "9TiAc.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Aircraft_Combat_Archer_%282565196807%29.jpg/1280px-Aircraft_Combat_Archer_%282565196807%29.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/F-22_Raptor.jpg/1280px-F-22_Raptor.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/F-22_Raptor_edit1.jpg/1280px-F-22_Raptor_edit1.jpg"
-      ]
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Raptor_Demonstration_Team_Performs_in_Canada_%289876654%29.jpg/1280px-Raptor_Demonstration_Team_Performs_in_Canada_%289876654%29.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/192d_FW_F-22_Raptor.jpg/1280px-192d_FW_F-22_Raptor.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/F-22_Raptor.jpg/1280px-F-22_Raptor.jpg"
+      ],
+      "flag": "🇺🇸"
     },
     {
       "id": 2,
@@ -144,10 +145,11 @@
       },
       "images": [
         "o9O5o.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/F-35A_flight.jpg/1280px-F-35A_flight.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/F-35_Lightning_II.jpg/1280px-F-35_Lightning_II.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/F-35A.jpg/1280px-F-35A.jpg"
-      ]
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/F-35_at_Edwards.jpg/1280px-F-35_at_Edwards.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Lightning_in_the_skies-_F-35As_soar_over_Misawa_%289741490%29.jpg/1280px-Lightning_in_the_skies-_F-35As_soar_over_Misawa_%289741490%29.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/F-35_Demo_Team_%26_Thunderbirds_-_Aviation_Nation_2019.jpg/1280px-F-35_Demo_Team_%26_Thunderbirds_-_Aviation_Nation_2019.jpg"
+      ],
+      "flag": "🇺🇸"
     },
     {
       "id": 3,
@@ -172,8 +174,12 @@
         "payload": "better"
       },
       "images": [
-        "fBqWn.jpg"
-      ]
+        "fBqWn.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/J-20_at_Airshow_China_2016.jpg/1280px-J-20_at_Airshow_China_2016.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Chengdu_J-20_flying_at_the_2025_China_Victory_Day_Parade.jpg/1280px-Chengdu_J-20_flying_at_the_2025_China_Victory_Day_Parade.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/J-20_fighter_%28cropped%29.jpg/960px-J-20_fighter_%28cropped%29.jpg"
+      ],
+      "flag": "🇨🇳"
     },
     {
       "id": 4,
@@ -199,7 +205,8 @@
       },
       "images": [
         "sZm2w.jpg"
-      ]
+      ],
+      "flag": "🇨🇳"
     },
     {
       "id": 5,
@@ -225,7 +232,8 @@
       },
       "images": [
         "6ltgd.jpg"
-      ]
+      ],
+      "flag": "🇷🇺"
     },
     {
       "id": 6,
@@ -251,7 +259,8 @@
       },
       "images": [
         "sOosj.jpg"
-      ]
+      ],
+      "flag": "🇰🇷"
     },
     {
       "id": 7,
@@ -277,7 +286,8 @@
       },
       "images": [
         "Gjrij.jpg"
-      ]
+      ],
+      "flag": "🇪🇺"
     },
     {
       "id": 8,
@@ -303,7 +313,8 @@
       },
       "images": [
         "8rf1v.jpg"
-      ]
+      ],
+      "flag": "🇫🇷"
     },
     {
       "id": 9,
@@ -329,7 +340,8 @@
       },
       "images": [
         "g1xYw.jpg"
-      ]
+      ],
+      "flag": "🇸🇪"
     },
     {
       "id": 10,
@@ -355,7 +367,8 @@
       },
       "images": [
         "RtwDP.jpg"
-      ]
+      ],
+      "flag": "🇺🇸"
     },
     {
       "id": 11,
@@ -381,7 +394,8 @@
       },
       "images": [
         "AHauI.jpg"
-      ]
+      ],
+      "flag": "🇺🇸"
     },
     {
       "id": 12,
@@ -407,7 +421,8 @@
       },
       "images": [
         "Z8spC.jpg"
-      ]
+      ],
+      "flag": "🇺🇸"
     },
     {
       "id": 13,
@@ -433,7 +448,8 @@
       },
       "images": [
         "jviEt.jpg"
-      ]
+      ],
+      "flag": "🇷🇺"
     },
     {
       "id": 14,
@@ -459,7 +475,8 @@
       },
       "images": [
         "hCosl.jpg"
-      ]
+      ],
+      "flag": "🇷🇺"
     },
     {
       "id": 15,
@@ -485,7 +502,8 @@
       },
       "images": [
         "mq3d9.jpg"
-      ]
+      ],
+      "flag": "🇷🇺"
     },
     {
       "id": 16,
@@ -511,7 +529,8 @@
       },
       "images": [
         "pbG3c.jpg"
-      ]
+      ],
+      "flag": "🇨🇳"
     },
     {
       "id": 17,
@@ -537,7 +556,8 @@
       },
       "images": [
         "5AR0V.jpg"
-      ]
+      ],
+      "flag": "🇨🇳"
     },
     {
       "id": 18,
@@ -563,7 +583,8 @@
       },
       "images": [
         "PgkJo.jpg"
-      ]
+      ],
+      "flag": "🇯🇵"
     },
     {
       "id": 19,
@@ -589,7 +610,8 @@
       },
       "images": [
         "zUgoB.jpg"
-      ]
+      ],
+      "flag": "🇮🇳"
     },
     {
       "id": 20,
@@ -615,7 +637,8 @@
       },
       "images": [
         "3aeYk.jpg"
-      ]
+      ],
+      "flag": "🇵🇰"
     },
     {
       "id": 21,
@@ -641,7 +664,8 @@
       },
       "images": [
         "ZkGwR.jpg"
-      ]
+      ],
+      "flag": "🇫🇷"
     },
     {
       "id": 22,
@@ -667,7 +691,8 @@
       },
       "images": [
         "MXBva.jpg"
-      ]
+      ],
+      "flag": "🇷🇺"
     },
     {
       "id": 23,
@@ -693,7 +718,8 @@
       },
       "images": [
         "aoKo1.jpg"
-      ]
+      ],
+      "flag": "🇺🇸"
     },
     {
       "id": 24,
@@ -719,7 +745,8 @@
       },
       "images": [
         "DVhP2.jpg"
-      ]
+      ],
+      "flag": "🇷🇺"
     },
     {
       "id": 25,
@@ -745,7 +772,8 @@
       },
       "images": [
         "2RuBv.jpg"
-      ]
+      ],
+      "flag": "🇷🇺"
     },
     {
       "id": 26,
@@ -771,7 +799,8 @@
       },
       "images": [
         "FPf1R.jpg"
-      ]
+      ],
+      "flag": "🇨🇳"
     },
     {
       "id": 27,
@@ -797,7 +826,8 @@
       },
       "images": [
         "2cqb2.jpg"
-      ]
+      ],
+      "flag": "🇨🇳"
     },
     {
       "id": 28,
@@ -823,7 +853,8 @@
       },
       "images": [
         "t4vyX.jpg"
-      ]
+      ],
+      "flag": "🇺🇸"
     },
     {
       "id": 29,
@@ -849,7 +880,8 @@
       },
       "images": [
         "1fo1L.jpg"
-      ]
+      ],
+      "flag": "🇹🇷"
     },
     {
       "id": 30,
@@ -875,7 +907,8 @@
       },
       "images": [
         "G4oeq.jpg"
-      ]
+      ],
+      "flag": "🇮🇳"
     },
     {
       "id": 31,
@@ -901,7 +934,8 @@
       },
       "images": [
         "b4Snn.jpg"
-      ]
+      ],
+      "flag": "🇷🇺"
     },
     {
       "id": 32,
@@ -927,7 +961,8 @@
       },
       "images": [
         "F25Qd.jpg"
-      ]
+      ],
+      "flag": "🇨🇳"
     }
   ],
   "notes": {
