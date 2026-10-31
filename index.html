@@ -347,7 +347,7 @@ async function playCategory(cat, state) {
 
   if (winner === 0) {
     newPending = [...pending, c1, c2];
-    nextTurn = state.turn === 1 ? 2 : 1;
+    nextTurn = state.turn; // Gleichstand: gleicher Spieler zieht nochmal
   } else {
     if (winner === 1) newP1 = [...newP1, ...wonCards];
     else newP2 = [...newP2, ...wonCards];
