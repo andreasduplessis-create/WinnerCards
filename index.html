@@ -8,6 +8,7 @@
   :root {
     --bg: #0f1419;
     --card-bg: #1a2332;
+    --card-bg-light: #243044;
     --cyan: #00d4ff;
     --orange: #ff9f43;
     --white: #ffffff;
@@ -23,27 +24,6 @@
     min-height: 100vh;
     padding: 12px;
   }
-  body.player-light {
-    background: #e8eef5;
-    color: #1e293b;
-  }
-  body.player-light .card-display {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-  }
-  body.player-light .stat-row { border-color: #e2e8f0; }
-  body.player-light .stat-row:hover, body.player-light .stat-row:active { background: #f1f5f9; }
-  body.player-light .status-line { color: #475569; }
-  body.player-light .status-line .turn { color: #0369a1; }
-  body.player-light .debug { background: #f1f5f9; color: #334155; }
-  body.player-light .card-image { background: #e2e8f0; }
-  body.player-light .header { color: #0f172a; }
-  body.player-light button, body.player-light .reveal-btn {
-    background: #0ea5e9;
-    color: #ffffff;
-  }
-  body.player-light .joker-btn { background: #fbbf24; color: #000; }
-  body.player-light input { background: #e2e8f0; color: #0f172a; }
   .header {
     text-align: center;
     margin-bottom: 8px;
@@ -57,8 +37,6 @@
     font-size: 0.95rem;
   }
   .status-line .turn { color: var(--cyan); font-weight: 600; }
-  .status-line .win { color: var(--green); font-weight: 700; }
-  .status-line .lose { color: var(--red); font-weight: 700; }
   .card-display {
     background: var(--card-bg);
     border-radius: 16px;
@@ -66,6 +44,10 @@
     margin-bottom: 16px;
     border: 1px solid #2a3a50;
     position: relative;
+  }
+  body.player-light .card-display {
+    background: var(--card-bg-light);
+    border-color: #3a4a60;
   }
   .card-image {
     width: 100%;
@@ -93,10 +75,12 @@
     border-bottom: 1px solid #2a3a50;
     cursor: pointer;
   }
+  body.player-light .stat-row { border-color: #3a4a60; }
+  body.player-light .stat-row:hover, body.player-light .stat-row:active { background: #2c3a52; }
   .stat-row:last-child { border-bottom: none; }
   .stat-row:hover, .stat-row:active { background: #243044; }
-  .stat-label { font-weight: 500; display: flex; align-items: center; gap: 6px; text-transform: none; }
-  .stat-value { font-weight: 500; color: inherit; }
+  .stat-label { font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .stat-value { font-weight: 500; }
   .dot {
     width: 8px; height: 8px; border-radius: 50%; display: inline-block;
   }
@@ -266,17 +250,6 @@ let autoRotateTimer = null;
 let jokersLeft = 3;
 let jokerTypes = [];
 
-const icons = {
-  speed: "🚀",
-  thrust: "🔥",
-  ceiling: "🏔️",
-  weight: "⚖️",
-  range: "🗺️",
-  climb: "📈",
-  thrusttoweight: "💪",
-  payload: "💣"
-};
-
 function formatNumber(n) {
   if (n === undefined || n === null || n === "—") return "—";
   const num = Number(n);
@@ -418,7 +391,6 @@ function useJoker() {
       document.querySelectorAll(".dot").forEach(d => d.classList.add("hidden-dot"));
     }, 3000);
   } else if (type === "peek") {
-    // Peek: show opponent's schema image with frame
     gameRef && get(gameRef).then(snap => {
       const state = snap.val();
       if (!state) return;
@@ -435,7 +407,6 @@ function useJoker() {
       }, 3000);
     });
   } else if (type === "skip") {
-    // Skip own card, opponent keeps theirs
     gameRef && get(gameRef).then(async snap => {
       const state = snap.val();
       if (!state) return;
@@ -467,7 +438,6 @@ function renderState(state) {
   const card = myCards[0];
   const isMyTurn = state.turn === myPlayer && state.status === "playing";
 
-  let statusExtra = "";
   document.getElementById("statusLine").innerHTML = `
     <span class="turn">${isMyTurn ? "Your turn" : "Opponent's turn"}</span>
     · Your cards: ${myCards.length}
@@ -529,7 +499,6 @@ function renderState(state) {
     const r = state.reveal;
     const btn = document.createElement("button");
     btn.className = "reveal-btn";
-
     const step = r.step || 1;
 
     if (step === 1 && myPlayer === r.by) {
@@ -539,8 +508,8 @@ function renderState(state) {
       btn.textContent = `Opponent's ${r.label}: ${formatNumber(r.myValue)} ${r.unit}`;
       btn.onclick = () => confirmReveal(state);
     } else if (step === 3 && myPlayer !== r.by) {
-      const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
-      const myVal = myCards[0]?.[r.key];
+      const myCards2 = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
+      const myVal = myCards2[0]?.[r.key];
       btn.textContent = `Your ${r.label}: ${formatNumber(myVal)} ${r.unit}`;
       btn.onclick = () => confirmReveal(state);
     } else {
@@ -589,7 +558,7 @@ async function confirmReveal(state) {
   if (step === 1 && myPlayer === r.by) {
     await update(gameRef, {
       reveal: { ...r, step: 2 },
-      debug: `${r.label} confirmed by chooser – opponent sees value`
+      debug: `${r.label} confirmed by chooser`
     });
     return;
   }
@@ -597,13 +566,12 @@ async function confirmReveal(state) {
   if (step === 2 && myPlayer !== r.by) {
     await update(gameRef, {
       reveal: { ...r, step: 3 },
-      debug: `Opponent saw chooser's value – now confirms own value`
+      debug: `Opponent saw chooser's value`
     });
     return;
   }
 
   if (step === 3 && myPlayer !== r.by) {
-    // Resolve
     const p1 = [...(state.p1 || [])];
     const p2 = [...(state.p2 || [])];
     const c1 = p1[0];
@@ -652,7 +620,6 @@ async function confirmReveal(state) {
       reveal: null
     });
 
-    // Flash feedback
     if (winner === myPlayer) flash("green");
     else if (winner !== 0) flash("red");
   }
