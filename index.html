@@ -16,13 +16,24 @@
     --red: #f87171;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--white);
-    font-family: system-ui, -apple-system, sans-serif;
-    min-height: 100vh;
-    padding: 12px;
+  body.player-light {
+    background: #ffffff;
+    color: #111827;
   }
+  body.player-light .card-display {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+  }
+  body.player-light .stat-row { border-color: #e2e8f0; }
+  body.player-light .stat-row:hover, body.player-light .stat-row:active { background: #f1f5f9; }
+  body.player-light .status-line { color: #64748b; }
+  body.player-light .status-line .turn { color: #0369a1; }
+  body.player-light .debug { background: #f1f5f9; color: #475569; }
+  body.player-light button, body.player-light .reveal-btn {
+    background: #0ea5e9;
+    color: #ffffff;
+  }
+  body.player-light .joker-btn { background: #fbbf24; color: #000; }
   .header {
     text-align: center;
     margin-bottom: 8px;
@@ -74,9 +85,8 @@
   }
   .stat-row:last-child { border-bottom: none; }
   .stat-row:hover, .stat-row:active { background: #243044; }
-  .stat-label { font-weight: 600; display: flex; align-items: center; gap: 6px; }
-  .stat-label.higher { color: var(--cyan); }
-  .stat-label.lower { color: var(--orange); }
+  .stat-label { font-weight: 500; display: flex; align-items: center; gap: 6px; text-transform: none; }
+  .stat-value { font-weight: 500; }
   .stat-value { font-weight: 500; color: var(--white); display: flex; align-items: center; gap: 6px; }
   .dot {
     width: 8px; height: 8px; border-radius: 50%; display: inline-block;
@@ -435,6 +445,9 @@ function useJoker() {
 }
 
 function renderState(state) {
+  document.body.classList.toggle("player-light", myPlayer === 1);
+  document.body.classList.toggle("player-dark", myPlayer === 2);
+
   const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
   if (myCards.length === 0) {
     endGame(myPlayer === 1 ? 2 : 1);
@@ -444,12 +457,9 @@ function renderState(state) {
   const isMyTurn = state.turn === myPlayer && state.status === "playing";
 
   let statusExtra = "";
-  if (state.lastWinner === myPlayer) statusExtra = ' <span class="win">You win!</span>';
-  else if (state.lastWinner && state.lastWinner !== myPlayer) statusExtra = ' <span class="lose">You lost</span>';
-
   document.getElementById("statusLine").innerHTML = `
     <span class="turn">${isMyTurn ? "Your turn" : "Opponent's turn"}</span>
-    · Your cards: ${myCards.length}${statusExtra}
+    · Your cards: ${myCards.length}
   `;
 
   currentImages = getImages(card);
@@ -477,14 +487,13 @@ function renderState(state) {
   criteria.forEach(cat => {
     const row = document.createElement("div");
     row.className = "stat-row";
-    const cls = cat.higher ? "higher" : "lower";
+    const arrow = cat.higher ? "↑" : "↓";
     const val = formatNumber(card[cat.key]);
     const rating = card.ratings?.[cat.key] || "medium";
-    const icon = icons[cat.key] || "•";
     row.innerHTML = `
-      <span class="stat-label ${cls}">
+      <span class="stat-label">
         <span class="dot ${rating} hidden-dot"></span>
-        ${cat.label}
+        ${arrow} ${cat.label}
       </span>
       <span class="stat-value">${val} ${cat.unit}</span>
     `;
