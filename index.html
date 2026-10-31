@@ -311,7 +311,7 @@ function startAutoRotate() {
     document.querySelectorAll("#imageDots span").forEach((s, i) => {
       s.classList.toggle("active", i === currentImageIndex);
     });
-  }, 3500);
+  }, 1000);
 }
 
 function stopAutoRotate() {
@@ -408,22 +408,21 @@ function renderState(state) {
   }
 }
 
-// Simple swipe
-let touchStartX = 0;
-document.getElementById("cardImage").addEventListener("touchstart", e => {
-  touchStartX = e.changedTouches[0].screenX;
-  stopAutoRotate();
-});
-document.getElementById("cardImage").addEventListener("touchend", e => {
-  const dx = e.changedTouches[0].screenX - touchStartX;
-  if (Math.abs(dx) < 40) return;
-  if (dx < 0) currentImageIndex = Math.min(currentImageIndex + 1, currentImages.length - 1);
-  else currentImageIndex = Math.max(currentImageIndex - 1, 0);
-  document.getElementById("cardImage").src = resolveImageSrc(currentImages[currentImageIndex]);
-  document.querySelectorAll("#imageDots span").forEach((s, i) => {
-    s.classList.toggle("active", i === currentImageIndex);
-  });
-});
+// Swipe disabled – auto-rotate only
+// document.getElementById("cardImage").addEventListener("touchstart", e => {
+//   touchStartX = e.changedTouches[0].screenX;
+//   stopAutoRotate();
+// });
+// document.getElementById("cardImage").addEventListener("touchend", e => {
+//   const dx = e.changedTouches[0].screenX - touchStartX;
+//   if (Math.abs(dx) < 40) return;
+//   if (dx < 0) currentImageIndex = Math.min(currentImageIndex + 1, currentImages.length - 1);
+//   else currentImageIndex = Math.max(currentImageIndex - 1, 0);
+//   document.getElementById("cardImage").src = resolveImageSrc(currentImages[currentImageIndex]);
+//   document.querySelectorAll("#imageDots span").forEach((s, i) => {
+//     s.classList.toggle("active", i === currentImageIndex);
+//   });
+// });
 
 async function playCategory(cat, state) {
   const p1 = [...(state.p1 || [])];
