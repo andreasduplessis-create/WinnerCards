@@ -79,8 +79,10 @@
   body.player-light .stat-row:hover, body.player-light .stat-row:active { background: #2c3a52; }
   .stat-row:last-child { border-bottom: none; }
   .stat-row:hover, .stat-row:active { background: #243044; }
-  .stat-label { font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .stat-label { font-weight: 500; display: flex; align-items: center; gap: 6px; text-transform: none; }
   .stat-value { font-weight: 500; }
+  body.player-light .stat-label,
+  body.player-light .stat-value { font-weight: 700; }
   .dot {
     width: 8px; height: 8px; border-radius: 50%; display: inline-block;
   }
@@ -211,7 +213,7 @@
   <div id="revealArea"></div>
   <div class="joker-area" id="jokerArea"></div>
   <div class="result" id="resultDisplay"></div>
-  <div class="debug-wrap">
+  <div class="debug-wrap" style="display:none;">
     <button class="debug-toggle" onclick="document.getElementById('debugInfo').classList.toggle('open')">Debug</button>
     <div class="debug" id="debugInfo"></div>
   </div>
@@ -372,11 +374,33 @@ function renderJokerButton() {
   const area = document.getElementById("jokerArea");
   area.innerHTML = "";
   if (jokersLeft <= 0) return;
+
+  const wrap = document.createElement("div");
+  wrap.style.textAlign = "center";
+
+  const check = document.createElement("input");
+  check.type = "checkbox";
+  check.id = "jokerConfirm";
+  check.style.marginRight = "8px";
+
+  const label = document.createElement("label");
+  label.htmlFor = "jokerConfirm";
+  label.textContent = "Confirm Joker";
+  label.style.marginRight = "12px";
+  label.style.color = "var(--muted)";
+
   const btn = document.createElement("button");
   btn.className = "joker-btn";
   btn.textContent = `Joker (${jokersLeft})`;
+  btn.disabled = true;
   btn.onclick = useJoker;
-  area.appendChild(btn);
+
+  check.onchange = () => { btn.disabled = !check.checked; };
+
+  wrap.appendChild(check);
+  wrap.appendChild(label);
+  wrap.appendChild(btn);
+  area.appendChild(wrap);
 }
 
 function useJoker() {
