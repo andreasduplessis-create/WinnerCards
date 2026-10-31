@@ -113,6 +113,15 @@
     color: var(--cyan);
     margin: 16px 0;
   }
+  .debug {
+    background: #1a2332;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: left;
+  }
 </style>
 </head>
 <body>
@@ -137,6 +146,7 @@
     <div class="turn" id="turnDisplay">Warte auf Spieler…</div>
     <div class="counts" id="countDisplay"></div>
   </div>
+  <div class="debug" id="debugInfo"></div>
   <div class="pile-info" id="pileInfo"></div>
   <div class="card-display">
     <img class="card-image" id="cardImage" src="" alt="">
@@ -214,7 +224,9 @@ window.createRoom = async function() {
     currentPlayer: Math.random() < 0.5 ? 1 : 2,
     pending: [],
     status: "waiting",
-    lastResult: ""
+    lastWinner: null,
+    lastCategory: "",
+    lastCards: null
   };
   gameRef = ref(db, `rooms/${roomCode}`);
   await set(gameRef, initialState);
@@ -292,17 +304,30 @@ function renderState(state) {
     ? `${state.pending.length} Karten liegen (Gleichstand)`
     : "";
 
+  // Debug info
+  const debug = document.getElementById("debugInfo");
+  if (state.lastCards) {
+    const lc = state.lastCards;
+    debug.innerHTML = `
+      Letzter Zug: ${lc.cat}<br>
+      P1: ${lc.p1name} (${lc.p1val}) vs P2: ${lc.p2name} (${lc.p2val})<br>
+      Gewinner: Spieler ${state.lastWinner || "—"}
+    `;
+  } else {
+    debug.textContent = "";
+  }
+
   const resultEl = document.getElementById("resultDisplay");
   resultEl.className = "result";
-  if (state.lastResult === "win") {
-    resultEl.textContent = "Du hast gewonnen!";
-    resultEl.classList.add("win");
-  } else if (state.lastResult === "lose") {
-    resultEl.textContent = "Du hast verloren";
-    resultEl.classList.add("lose");
-  } else if (state.lastResult === "tie") {
+  if (state.lastWinner === 0) {
     resultEl.textContent = "Gleichstand – Karten bleiben liegen";
     resultEl.classList.add("tie");
+  } else if (state.lastWinner === myPlayer) {
+    resultEl.textContent = "Du hast gewonnen!";
+    resultEl.classList.add("win");
+  } else if (state.lastWinner && state.lastWinner !== myPlayer) {
+    resultEl.textContent = "Du hast verloren";
+    resultEl.classList.add("lose");
   } else {
     resultEl.textContent = "";
   }
@@ -326,15 +351,12 @@ async function playCategory(cat, state) {
   let newPlayer1 = [...state.player1];
   let newPlayer2 = [...state.player2];
   let newPending = [...(state.pending || [])];
-  let lastResult = "";
   let nextPlayer = state.currentPlayer;
 
   if (winner === 0) {
-    lastResult = "tie";
     newPending.push(newPlayer1.shift(), newPlayer2.shift());
     nextPlayer = state.currentPlayer === 1 ? 2 : 1;
   } else {
-    lastResult = (winner === myPlayer) ? "win" : "lose";
     if (winner === 1) {
       newPlayer1 = [...newPlayer1.slice(1), ...cardsToWin];
       newPlayer2 = newPlayer2.slice(1);
@@ -343,7 +365,7 @@ async function playCategory(cat, state) {
       newPlayer1 = newPlayer1.slice(1);
     }
     newPending = [];
-    nextPlayer = winner; // Gewinner bleibt am Zug
+    nextPlayer = winner;
   }
 
   await update(gameRef, {
@@ -351,7 +373,15 @@ async function playCategory(cat, state) {
     player2: newPlayer2,
     pending: newPending,
     currentPlayer: nextPlayer,
-    lastResult: lastResult
+    lastWinner: winner,
+    lastCategory: cat.label,
+    lastCards: {
+      cat: cat.label,
+      p1name: p1Card.name,
+      p1val: v1,
+      p2name: p2Card.name,
+      p2val: v2
+    }
   });
 }
 
