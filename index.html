@@ -480,12 +480,32 @@ function renderState(state) {
 
   const revealArea = document.getElementById("revealArea");
   revealArea.innerHTML = "";
-  if (state.reveal && !isMyTurn) {
+  if (state.reveal) {
     const r = state.reveal;
     const btn = document.createElement("button");
     btn.className = "reveal-btn";
-    btn.textContent = `${r.label}: ${formatNumber(r.opponentValue)} ${r.unit}`;
-    btn.onclick = () => confirmReveal(state);
+
+    if (r.confirmedBy === null) {
+      // Only the chooser sees their own value first
+      if (myPlayer === r.by) {
+        btn.textContent = `Confirm ${r.label}: ${formatNumber(r.myValue)} ${r.unit}`;
+        btn.onclick = () => confirmReveal(state);
+      } else {
+        btn.textContent = `${r.label} chosen – waiting for opponent to confirm`;
+        btn.disabled = true;
+      }
+    } else {
+      // Chooser confirmed → opponent sees their own value and must confirm
+      if (myPlayer !== r.by) {
+        const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
+        const myVal = myCards[0]?.[r.key];
+        btn.textContent = `Confirm ${r.label}: ${formatNumber(myVal)} ${r.unit}`;
+        btn.onclick = () => confirmReveal(state);
+      } else {
+        btn.textContent = `${r.label} confirmed – waiting for opponent`;
+        btn.disabled = true;
+      }
+    }
     revealArea.appendChild(btn);
   }
 
@@ -504,7 +524,6 @@ async function playCategory(cat, state) {
   const c1 = p1[0];
   const c2 = p2[0];
   const myCard = myPlayer === 1 ? c1 : c2;
-  const oppCard = myPlayer === 1 ? c2 : c1;
 
   await update(gameRef, {
     reveal: {
@@ -513,10 +532,10 @@ async function playCategory(cat, state) {
       unit: cat.unit,
       higher: cat.higher,
       myValue: myCard[cat.key],
-      opponentValue: oppCard[cat.key],
-      by: myPlayer
+      by: myPlayer,
+      confirmedBy: null
     },
-    debug: `Selected: ${cat.label} – waiting for opponent`
+    debug: `Selected: ${cat.label} – confirm on both sides`
   });
 }
 
@@ -524,53 +543,65 @@ async function confirmReveal(state) {
   const r = state.reveal;
   if (!r) return;
 
-  const p1 = [...(state.p1 || [])];
-  const p2 = [...(state.p2 || [])];
-  const c1 = p1[0];
-  const c2 = p2[0];
+  // First confirmation by the player who chose
+  if (r.confirmedBy === null && myPlayer === r.by) {
+    await update(gameRef, {
+      reveal: { ...r, confirmedBy: myPlayer },
+      debug: `${r.label} confirmed by Player ${myPlayer} – waiting for opponent`
+    });
+    return;
+  }
 
-  const v1 = Number(c1[r.key]);
-  const v2 = Number(c2[r.key]);
+  // Second confirmation by the opponent → resolve
+  if (r.confirmedBy !== null && myPlayer !== r.by) {
+    const p1 = [...(state.p1 || [])];
+    const p2 = [...(state.p2 || [])];
+    const c1 = p1[0];
+    const c2 = p2[0];
 
-  let winner = 0;
-  if (!isNaN(v1) && !isNaN(v2)) {
-    if (r.higher) {
-      if (v1 > v2) winner = 1;
-      else if (v2 > v1) winner = 2;
-    } else {
-      if (v1 < v2) winner = 1;
-      else if (v2 < v1) winner = 2;
+    const v1 = Number(c1[r.key]);
+    const v2 = Number(c2[r.key]);
+
+    let winner = 0;
+    if (!isNaN(v1) && !isNaN(v2)) {
+      if (r.higher) {
+        if (v1 > v2) winner = 1;
+        else if (v2 > v1) winner = 2;
+      } else {
+        if (v1 < v2) winner = 1;
+        else if (v2 < v1) winner = 2;
+      }
     }
+
+    const pending = [...(state.pending || [])];
+    const wonCards = [c1, c2, ...pending];
+
+    let newP1 = p1.slice(1);
+    let newP2 = p2.slice(1);
+    let newPending = [];
+    let nextTurn = state.turn;
+
+    if (winner === 0) {
+      newPending = [...pending, c1, c2];
+      nextTurn = state.turn;
+    } else {
+      if (winner === 1) newP1 = [...newP1, ...wonCards];
+      else newP2 = [...newP2, ...wonCards];
+      nextTurn = winner;
+    }
+
+    const debugText = `${r.label}: ${c1.name} (${v1}) vs ${c2.name} (${v2}) → Winner: ${winner === 0 ? "Tie" : "Player " + winner}`;
+
+    await update(gameRef, {
+      p1: newP1,
+      p2: newP2,
+      pending: newPending,
+      turn: nextTurn,
+      lastWinner: winner,
+      debug: debugText,
+      reveal: null
+    });
   }
-
-  const pending = [...(state.pending || [])];
-  const wonCards = [c1, c2, ...pending];
-
-  let newP1 = p1.slice(1);
-  let newP2 = p2.slice(1);
-  let newPending = [];
-  let nextTurn = state.turn;
-
-  if (winner === 0) {
-    newPending = [...pending, c1, c2];
-    nextTurn = state.turn;
-  } else {
-    if (winner === 1) newP1 = [...newP1, ...wonCards];
-    else newP2 = [...newP2, ...wonCards];
-    nextTurn = winner;
-  }
-
-  const debugText = `${r.label}: ${c1.name} (${v1}) vs ${c2.name} (${v2}) → Winner: ${winner === 0 ? "Tie" : "Player " + winner}`;
-
-  await update(gameRef, {
-    p1: newP1,
-    p2: newP2,
-    pending: newPending,
-    turn: nextTurn,
-    lastWinner: winner,
-    debug: debugText,
-    reveal: null
-  });
 }
 
 function endGame(winner) {
