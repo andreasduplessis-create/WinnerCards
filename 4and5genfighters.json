@@ -102,7 +102,7 @@
       "climb": 315,
       "tw_ratio": 1.25,
       "payload": 8200,
-      "image": "QJeDI.jpg",
+      "image": "9TiAc.jpg",
       "ratings": {
         "speed": "better",
         "thrust_hubkraft": "better",
@@ -112,7 +112,13 @@
         "climb": "better",
         "tw_ratio": "better",
         "payload": "better"
-      }
+      },
+      "images": [
+        "9TiAc.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Aircraft_Combat_Archer_%282565196807%29.jpg/1280px-Aircraft_Combat_Archer_%282565196807%29.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/F-22_Raptor.jpg/1280px-F-22_Raptor.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/F-22_Raptor_edit1.jpg/1280px-F-22_Raptor_edit1.jpg"
+      ]
     },
     {
       "id": 2,
@@ -125,7 +131,7 @@
       "climb": 250,
       "tw_ratio": 1.05,
       "payload": 8200,
-      "image": "tUhiA.jpg",
+      "image": "o9O5o.jpg",
       "ratings": {
         "speed": "worse",
         "thrust_hubkraft": "medium",
@@ -135,7 +141,13 @@
         "climb": "worse",
         "tw_ratio": "medium",
         "payload": "better"
-      }
+      },
+      "images": [
+        "o9O5o.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/F-35A_flight.jpg/1280px-F-35A_flight.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/F-35_Lightning_II.jpg/1280px-F-35_Lightning_II.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/F-35A.jpg/1280px-F-35A.jpg"
+      ]
     },
     {
       "id": 3,
@@ -148,7 +160,7 @@
       "climb": 305,
       "tw_ratio": 1.0,
       "payload": 11000,
-      "image": "a1eP1.jpg",
+      "image": "fBqWn.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "better",
@@ -158,7 +170,10 @@
         "climb": "better",
         "tw_ratio": "medium",
         "payload": "better"
-      }
+      },
+      "images": [
+        "fBqWn.jpg"
+      ]
     },
     {
       "id": 4,
@@ -171,7 +186,7 @@
       "climb": 280,
       "tw_ratio": 0.95,
       "payload": 8000,
-      "image": "SSej0.jpg",
+      "image": "sZm2w.jpg",
       "ratings": {
         "speed": "worse",
         "thrust_hubkraft": "worse",
@@ -181,7 +196,10 @@
         "climb": "medium",
         "tw_ratio": "worse",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "sZm2w.jpg"
+      ]
     },
     {
       "id": 5,
@@ -194,7 +212,7 @@
       "climb": 340,
       "tw_ratio": 1.15,
       "payload": 10000,
-      "image": "Yu596.jpg",
+      "image": "6ltgd.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "better",
@@ -204,7 +222,10 @@
         "climb": "better",
         "tw_ratio": "better",
         "payload": "better"
-      }
+      },
+      "images": [
+        "6ltgd.jpg"
+      ]
     },
     {
       "id": 6,
@@ -217,7 +238,7 @@
       "climb": 290,
       "tw_ratio": 1.1,
       "payload": 7700,
-      "image": "967PF.jpg",
+      "image": "sOosj.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "medium",
@@ -227,7 +248,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "sOosj.jpg"
+      ]
     },
     {
       "id": 7,
@@ -240,7 +264,7 @@
       "climb": 315,
       "tw_ratio": 1.15,
       "payload": 9000,
-      "image": "2PhlP.jpg",
+      "image": "Gjrij.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "worse",
@@ -250,7 +274,10 @@
         "climb": "better",
         "tw_ratio": "better",
         "payload": "better"
-      }
+      },
+      "images": [
+        "Gjrij.jpg"
+      ]
     },
     {
       "id": 8,
@@ -263,7 +290,7 @@
       "climb": 305,
       "tw_ratio": 1.1,
       "payload": 9500,
-      "image": "UMeNX.jpg",
+      "image": "8rf1v.jpg",
       "ratings": {
         "speed": "worse",
         "thrust_hubkraft": "worse",
@@ -273,7 +300,10 @@
         "climb": "better",
         "tw_ratio": "medium",
         "payload": "better"
-      }
+      },
+      "images": [
+        "8rf1v.jpg"
+      ]
     },
     {
       "id": 9,
@@ -286,7 +316,7 @@
       "climb": 254,
       "tw_ratio": 1.22,
       "payload": 5300,
-      "image": "nCsp1.jpg",
+      "image": "g1xYw.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "worse",
@@ -296,7 +326,10 @@
         "climb": "medium",
         "tw_ratio": "better",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "g1xYw.jpg"
+      ]
     },
     {
       "id": 10,
@@ -309,7 +342,7 @@
       "climb": 305,
       "tw_ratio": 1.25,
       "payload": 13300,
-      "image": "1srrJ.jpg",
+      "image": "RtwDP.jpg",
       "ratings": {
         "speed": "better",
         "thrust_hubkraft": "better",
@@ -319,7 +352,10 @@
         "climb": "better",
         "tw_ratio": "better",
         "payload": "better"
-      }
+      },
+      "images": [
+        "RtwDP.jpg"
+      ]
     },
     {
       "id": 11,
@@ -332,7 +368,7 @@
       "climb": 254,
       "tw_ratio": 1.15,
       "payload": 7700,
-      "image": "Zfl9w.jpg",
+      "image": "AHauI.jpg",
       "ratings": {
         "speed": "better",
         "thrust_hubkraft": "worse",
@@ -342,7 +378,10 @@
         "climb": "medium",
         "tw_ratio": "better",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "AHauI.jpg"
+      ]
     },
     {
       "id": 12,
@@ -355,7 +394,7 @@
       "climb": 228,
       "tw_ratio": 0.93,
       "payload": 8050,
-      "image": "Ppsxz.jpg",
+      "image": "Z8spC.jpg",
       "ratings": {
         "speed": "worse",
         "thrust_hubkraft": "medium",
@@ -365,7 +404,10 @@
         "climb": "worse",
         "tw_ratio": "worse",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "Z8spC.jpg"
+      ]
     },
     {
       "id": 13,
@@ -378,7 +420,7 @@
       "climb": 280,
       "tw_ratio": 1.1,
       "payload": 8000,
-      "image": "pOHh3.jpg",
+      "image": "jviEt.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "better",
@@ -388,7 +430,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "jviEt.jpg"
+      ]
     },
     {
       "id": 14,
@@ -401,7 +446,7 @@
       "climb": 230,
       "tw_ratio": 0.98,
       "payload": 8000,
-      "image": "LdU1x.jpg",
+      "image": "hCosl.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "better",
@@ -411,7 +456,10 @@
         "climb": "worse",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "hCosl.jpg"
+      ]
     },
     {
       "id": 15,
@@ -424,7 +472,7 @@
       "climb": 330,
       "tw_ratio": 1.08,
       "payload": 7000,
-      "image": "ZzU5w.jpg",
+      "image": "mq3d9.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "worse",
@@ -434,7 +482,10 @@
         "climb": "better",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "mq3d9.jpg"
+      ]
     },
     {
       "id": 16,
@@ -447,7 +498,7 @@
       "climb": 280,
       "tw_ratio": 1.05,
       "payload": 6000,
-      "image": "qhUIo.jpg",
+      "image": "pbG3c.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "worse",
@@ -457,7 +508,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "pbG3c.jpg"
+      ]
     },
     {
       "id": 17,
@@ -470,7 +524,7 @@
       "climb": 250,
       "tw_ratio": 1.0,
       "payload": 8000,
-      "image": "31ylj.jpg",
+      "image": "5AR0V.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "better",
@@ -480,7 +534,10 @@
         "climb": "worse",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "5AR0V.jpg"
+      ]
     },
     {
       "id": 18,
@@ -493,7 +550,7 @@
       "climb": 250,
       "tw_ratio": 1.05,
       "payload": 5300,
-      "image": "NWH6D.jpg",
+      "image": "PgkJo.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "worse",
@@ -503,7 +560,10 @@
         "climb": "worse",
         "tw_ratio": "medium",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "PgkJo.jpg"
+      ]
     },
     {
       "id": 19,
@@ -516,7 +576,7 @@
       "climb": 250,
       "tw_ratio": 1.07,
       "payload": 5300,
-      "image": "GTar3.jpg",
+      "image": "zUgoB.jpg",
       "ratings": {
         "speed": "worse",
         "thrust_hubkraft": "worse",
@@ -526,7 +586,10 @@
         "climb": "worse",
         "tw_ratio": "medium",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "zUgoB.jpg"
+      ]
     },
     {
       "id": 20,
@@ -539,7 +602,7 @@
       "climb": 240,
       "tw_ratio": 1.07,
       "payload": 3600,
-      "image": "vsTKw.jpg",
+      "image": "3aeYk.jpg",
       "ratings": {
         "speed": "worse",
         "thrust_hubkraft": "worse",
@@ -549,7 +612,10 @@
         "climb": "worse",
         "tw_ratio": "medium",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "3aeYk.jpg"
+      ]
     },
     {
       "id": 21,
@@ -562,7 +628,7 @@
       "climb": 285,
       "tw_ratio": 1.0,
       "payload": 6300,
-      "image": "sZrqB.jpg",
+      "image": "ZkGwR.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "worse",
@@ -572,7 +638,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "ZkGwR.jpg"
+      ]
     },
     {
       "id": 22,
@@ -585,7 +654,7 @@
       "climb": 330,
       "tw_ratio": 1.09,
       "payload": 7000,
-      "image": "0sdR1.jpg",
+      "image": "MXBva.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "worse",
@@ -595,7 +664,10 @@
         "climb": "better",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "MXBva.jpg"
+      ]
     },
     {
       "id": 23,
@@ -608,7 +680,7 @@
       "climb": 254,
       "tw_ratio": 1.12,
       "payload": 7300,
-      "image": "hhXD1.jpg",
+      "image": "aoKo1.jpg",
       "ratings": {
         "speed": "better",
         "thrust_hubkraft": "medium",
@@ -618,7 +690,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "aoKo1.jpg"
+      ]
     },
     {
       "id": 24,
@@ -631,7 +706,7 @@
       "climb": 300,
       "tw_ratio": 1.07,
       "payload": 8000,
-      "image": "Un5dH.jpg",
+      "image": "DVhP2.jpg",
       "ratings": {
         "speed": "better",
         "thrust_hubkraft": "better",
@@ -641,7 +716,10 @@
         "climb": "better",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "DVhP2.jpg"
+      ]
     },
     {
       "id": 25,
@@ -654,7 +732,7 @@
       "climb": 200,
       "tw_ratio": 0.85,
       "payload": 9000,
-      "image": "uAz9f.jpg",
+      "image": "2RuBv.jpg",
       "ratings": {
         "speed": "better",
         "thrust_hubkraft": "better",
@@ -664,7 +742,10 @@
         "climb": "worse",
         "tw_ratio": "worse",
         "payload": "better"
-      }
+      },
+      "images": [
+        "2RuBv.jpg"
+      ]
     },
     {
       "id": 26,
@@ -677,7 +758,7 @@
       "climb": 280,
       "tw_ratio": 1.05,
       "payload": 7500,
-      "image": "2RCnq.jpg",
+      "image": "FPf1R.jpg",
       "ratings": {
         "speed": "better",
         "thrust_hubkraft": "better",
@@ -687,7 +768,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "FPf1R.jpg"
+      ]
     },
     {
       "id": 27,
@@ -700,7 +784,7 @@
       "climb": 270,
       "tw_ratio": 1.0,
       "payload": 7500,
-      "image": "nqZCG.jpg",
+      "image": "2cqb2.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "better",
@@ -710,7 +794,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "2cqb2.jpg"
+      ]
     },
     {
       "id": 28,
@@ -723,7 +810,7 @@
       "climb": 254,
       "tw_ratio": 1.0,
       "payload": 6200,
-      "image": "uWtVM.jpg",
+      "image": "t4vyX.jpg",
       "ratings": {
         "speed": "worse",
         "thrust_hubkraft": "worse",
@@ -733,7 +820,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "t4vyX.jpg"
+      ]
     },
     {
       "id": 29,
@@ -746,7 +836,7 @@
       "climb": 290,
       "tw_ratio": 1.05,
       "payload": 7000,
-      "image": "YekyK.jpg",
+      "image": "1fo1L.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "better",
@@ -756,7 +846,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "medium"
-      }
+      },
+      "images": [
+        "1fo1L.jpg"
+      ]
     },
     {
       "id": 30,
@@ -769,7 +862,7 @@
       "climb": 270,
       "tw_ratio": 1.0,
       "payload": 6500,
-      "image": "8utME.jpg",
+      "image": "G4oeq.jpg",
       "ratings": {
         "speed": "worse",
         "thrust_hubkraft": "worse",
@@ -779,7 +872,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "G4oeq.jpg"
+      ]
     },
     {
       "id": 31,
@@ -792,7 +888,7 @@
       "climb": 260,
       "tw_ratio": 0.95,
       "payload": 6500,
-      "image": "Pksiv.jpg",
+      "image": "b4Snn.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "better",
@@ -802,7 +898,10 @@
         "climb": "medium",
         "tw_ratio": "worse",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "b4Snn.jpg"
+      ]
     },
     {
       "id": 32,
@@ -815,7 +914,7 @@
       "climb": 280,
       "tw_ratio": 1.05,
       "payload": 6000,
-      "image": "OU04v.jpg",
+      "image": "F25Qd.jpg",
       "ratings": {
         "speed": "medium",
         "thrust_hubkraft": "worse",
@@ -825,7 +924,10 @@
         "climb": "medium",
         "tw_ratio": "medium",
         "payload": "worse"
-      }
+      },
+      "images": [
+        "F25Qd.jpg"
+      ]
     }
   ],
   "notes": {
@@ -843,7 +945,7 @@
     },
     {
       "key": "thrust_hubkraft",
-      "label": "HUBKRAFT",
+      "label": "THRUST",
       "higher": true,
       "unit": "kg",
       "average": 19969.7
