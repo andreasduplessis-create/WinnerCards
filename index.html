@@ -77,10 +77,7 @@
   .result.lose { color: #f87171; }
   .result.tie { color: #fbbf24; }
   .hidden { display: none; }
-  .start-screen, .game-over, .lobby {
-    text-align: center;
-    padding: 40px 16px;
-  }
+  .lobby, .game-over { text-align: center; padding: 40px 16px; }
   button, input {
     background: var(--cyan);
     color: #000;
@@ -219,14 +216,13 @@ window.createRoom = async function() {
   myPlayer = 1;
   const deck = shuffle(cards);
   const initialState = {
-    player1: deck.slice(0, 16),
-    player2: deck.slice(16),
-    currentPlayer: Math.random() < 0.5 ? 1 : 2,
+    p1: deck.slice(0, 16),
+    p2: deck.slice(16),
+    turn: Math.random() < 0.5 ? 1 : 2,
     pending: [],
     status: "waiting",
     lastWinner: null,
-    lastCategory: "",
-    lastCards: null
+    debug: null
   };
   gameRef = ref(db, `rooms/${roomCode}`);
   await set(gameRef, initialState);
@@ -268,15 +264,16 @@ function listenToGame() {
 }
 
 function renderState(state) {
-  const myDeck = myPlayer === 1 ? state.player1 : state.player2;
-  if (!myDeck || myDeck.length === 0) {
+  const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
+  if (myCards.length === 0) {
     endGame(myPlayer === 1 ? 2 : 1);
     return;
   }
-  const card = myDeck[0];
-  const isMyTurn = state.currentPlayer === myPlayer && state.status === "playing";
+  const card = myCards[0];
+  const isMyTurn = state.turn === myPlayer && state.status === "playing";
+
   document.getElementById("turnDisplay").textContent = isMyTurn ? "Du bist am Zug" : "Gegner ist am Zug";
-  document.getElementById("countDisplay").textContent = `Karten: ${state.player1?.length || 0} | ${state.player2?.length || 0}`;
+  document.getElementById("countDisplay").textContent = `Karten: ${(state.p1||[]).length} | ${(state.p2||[]).length}`;
   document.getElementById("cardImage").src = `images/${card.image}`;
   document.getElementById("cardName").textContent = card.name;
 
@@ -300,19 +297,13 @@ function renderState(state) {
     stats.appendChild(row);
   });
 
-  document.getElementById("pileInfo").textContent = state.pending?.length
+  document.getElementById("pileInfo").textContent = (state.pending && state.pending.length)
     ? `${state.pending.length} Karten liegen (Gleichstand)`
     : "";
 
-  // Debug info
   const debug = document.getElementById("debugInfo");
-  if (state.lastCards) {
-    const lc = state.lastCards;
-    debug.innerHTML = `
-      Letzter Zug: ${lc.cat}<br>
-      P1: ${lc.p1name} (${lc.p1val}) vs P2: ${lc.p2name} (${lc.p2val})<br>
-      Gewinner: Spieler ${state.lastWinner || "—"}
-    `;
+  if (state.debug) {
+    debug.innerHTML = state.debug;
   } else {
     debug.textContent = "";
   }
@@ -334,54 +325,52 @@ function renderState(state) {
 }
 
 async function playCategory(cat, state) {
-  const p1Card = state.player1[0];
-  const p2Card = state.player2[0];
-  const v1 = p1Card[cat.key];
-  const v2 = p2Card[cat.key];
+  const p1 = [...(state.p1 || [])];
+  const p2 = [...(state.p2 || [])];
+  if (p1.length === 0 || p2.length === 0) return;
+
+  const c1 = p1[0];
+  const c2 = p2[0];
+  const v1 = Number(c1[cat.key]);
+  const v2 = Number(c2[cat.key]);
+
   let winner = 0;
-  if (cat.higher) {
-    if (v1 > v2) winner = 1;
-    else if (v2 > v1) winner = 2;
-  } else {
-    if (v1 < v2) winner = 1;
-    else if (v2 < v1) winner = 2;
+  if (!isNaN(v1) && !isNaN(v2)) {
+    if (cat.higher) {
+      if (v1 > v2) winner = 1;
+      else if (v2 > v1) winner = 2;
+    } else {
+      if (v1 < v2) winner = 1;
+      else if (v2 < v1) winner = 2;
+    }
   }
 
-  const cardsToWin = [p1Card, p2Card, ...(state.pending || [])];
-  let newPlayer1 = [...state.player1];
-  let newPlayer2 = [...state.player2];
-  let newPending = [...(state.pending || [])];
-  let nextPlayer = state.currentPlayer;
+  const pending = [...(state.pending || [])];
+  const wonCards = [c1, c2, ...pending];
+
+  let newP1 = p1.slice(1);
+  let newP2 = p2.slice(1);
+  let newPending = [];
+  let nextTurn = state.turn;
 
   if (winner === 0) {
-    newPending.push(newPlayer1.shift(), newPlayer2.shift());
-    nextPlayer = state.currentPlayer === 1 ? 2 : 1;
+    newPending = [...pending, c1, c2];
+    nextTurn = state.turn === 1 ? 2 : 1;
   } else {
-    if (winner === 1) {
-      newPlayer1 = [...newPlayer1.slice(1), ...cardsToWin];
-      newPlayer2 = newPlayer2.slice(1);
-    } else {
-      newPlayer2 = [...newPlayer2.slice(1), ...cardsToWin];
-      newPlayer1 = newPlayer1.slice(1);
-    }
-    newPending = [];
-    nextPlayer = winner;
+    if (winner === 1) newP1 = [...newP1, ...wonCards];
+    else newP2 = [...newP2, ...wonCards];
+    nextTurn = winner;
   }
 
+  const debugText = `${cat.label}: ${c1.name} (${v1}) vs ${c2.name} (${v2}) → Gewinner: ${winner === 0 ? "Gleichstand" : "Spieler " + winner}`;
+
   await update(gameRef, {
-    player1: newPlayer1,
-    player2: newPlayer2,
+    p1: newP1,
+    p2: newP2,
     pending: newPending,
-    currentPlayer: nextPlayer,
+    turn: nextTurn,
     lastWinner: winner,
-    lastCategory: cat.label,
-    lastCards: {
-      cat: cat.label,
-      p1name: p1Card.name,
-      p1val: v1,
-      p2name: p2Card.name,
-      p2val: v2
-    }
+    debug: debugText
   });
 }
 
