@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WinnerCards – Kampfflieger</title>
+<title>WinnerCards – 4th & 5th Gen Fighters</title>
 <style>
   :root {
     --bg: #0f1419;
@@ -125,7 +125,7 @@
 
 <div class="header">
   <h1>WinnerCards</h1>
-  <div>Kampfflieger Top Ass</div>
+  <div>4th & 5th Gen Fighters</div>
 </div>
 
 <div id="lobby" class="lobby">
@@ -182,7 +182,7 @@ let criteria = [];
 let gameRef = null;
 
 async function loadCards() {
-  const res = await fetch("kampfflieger_topass_dataset.json");
+  const res = await fetch("4and5genfighters.json");
   const data = await res.json();
   cards = data.cards;
   criteria = data.criteria || [];
@@ -228,6 +228,7 @@ window.createRoom = async function() {
 window.joinRoom = async function() {
   const code = document.getElementById("joinCode").value.trim().toUpperCase();
   if (code.length !== 4) return;
+  await loadCards();
   roomCode = code;
   myPlayer = 2;
   gameRef = ref(db, `rooms/${roomCode}`);
