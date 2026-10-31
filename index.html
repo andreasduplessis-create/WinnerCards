@@ -21,10 +21,7 @@
     min-height: 100vh;
     padding: 12px;
   }
-  .header {
-    text-align: center;
-    margin-bottom: 16px;
-  }
+  .header { text-align: center; margin-bottom: 16px; }
   .header h1 { font-size: 1.4rem; }
   .status {
     background: #243044;
@@ -34,6 +31,7 @@
     text-align: center;
   }
   .status .turn { font-size: 1.1rem; font-weight: 600; color: var(--cyan); }
+  .status .you { font-size: 0.95rem; color: var(--orange); margin-top: 4px; }
   .status .counts { color: var(--muted); margin-top: 4px; }
   .card-display {
     background: var(--card-bg);
@@ -54,9 +52,7 @@
     font-weight: 700;
     padding: 12px 8px 4px;
   }
-  .stats {
-    padding: 0 12px 12px;
-  }
+  .stats { padding: 0 12px 12px; }
   .stat-row {
     display: flex;
     justify-content: space-between;
@@ -103,6 +99,8 @@
     text-align: center;
     margin-bottom: 8px;
   }
+  .player-select { margin: 20px 0; }
+  .player-select button { min-width: 180px; }
 </style>
 </head>
 <body>
@@ -113,13 +111,20 @@
 </div>
 
 <div id="startScreen" class="start-screen">
-  <p style="margin-bottom:16px;">1 gegen 1 – Pass and Play</p>
-  <button onclick="startGame()">Spiel starten</button>
+  <p style="margin-bottom:8px;">Pass and Play (ein Gerät)</p>
+  <div class="player-select">
+    <button onclick="startGame(1)">Ich bin Spieler 1</button>
+    <button onclick="startGame(2)">Ich bin Spieler 2</button>
+  </div>
+  <p style="color:var(--muted); font-size:0.85rem; margin-top:12px;">
+    Reicht das Handy nach jedem Zug an den anderen Spieler weiter.
+  </p>
 </div>
 
 <div id="gameScreen" class="hidden">
   <div class="status">
     <div class="turn" id="turnDisplay">Spieler 1 ist am Zug</div>
+    <div class="you" id="youDisplay">Du bist Spieler 1</div>
     <div class="counts" id="countDisplay">Karten: 16 | 16</div>
   </div>
 
@@ -154,6 +159,7 @@ const CATEGORIES = [
 let cards = [];
 let player1 = [], player2 = [];
 let currentPlayer = 1;
+let myPlayer = 1;
 let pendingCards = [];
 let gameActive = false;
 
@@ -171,7 +177,8 @@ function shuffle(arr) {
   return arr;
 }
 
-async function startGame() {
+async function startGame(player) {
+  myPlayer = player;
   await loadData();
   const deck = shuffle([...cards]);
   player1 = deck.slice(0, 16);
@@ -188,25 +195,22 @@ function getCurrentDeck() {
   return currentPlayer === 1 ? player1 : player2;
 }
 
-function getOpponentDeck() {
-  return currentPlayer === 1 ? player2 : player1;
-}
-
 function updateUI() {
   const deck = getCurrentDeck();
-  const opp = getOpponentDeck();
   if (deck.length === 0) {
     endGame(currentPlayer === 1 ? 2 : 1);
     return;
   }
   const card = deck[0];
   document.getElementById("turnDisplay").textContent = `Spieler ${currentPlayer} ist am Zug`;
+  document.getElementById("youDisplay").textContent = `Du bist Spieler ${myPlayer}`;
   document.getElementById("countDisplay").textContent = `Karten: ${player1.length} | ${player2.length}`;
   document.getElementById("cardImage").src = `images/${card.image}`;
   document.getElementById("cardName").textContent = card.name;
 
   const stats = document.getElementById("statsContainer");
   stats.innerHTML = "";
+  const isMyTurn = currentPlayer === myPlayer;
   CATEGORIES.forEach(cat => {
     const row = document.createElement("div");
     row.className = "stat-row";
@@ -215,7 +219,12 @@ function updateUI() {
       <span class="stat-label ${cls}">${cat.label}</span>
       <span class="stat-value">${card[cat.key]} ${cat.unit}</span>
     `;
-    row.onclick = () => playCategory(cat);
+    if (isMyTurn) {
+      row.onclick = () => playCategory(cat);
+    } else {
+      row.style.opacity = "0.5";
+      row.style.cursor = "default";
+    }
     stats.appendChild(row);
   });
 
@@ -227,7 +236,7 @@ function updateUI() {
 }
 
 function playCategory(cat) {
-  if (!gameActive) return;
+  if (!gameActive || currentPlayer !== myPlayer) return;
   const p1Card = player1[0];
   const p2Card = player2[0];
   if (!p1Card || !p2Card) return;
@@ -251,10 +260,9 @@ function playCategory(cat) {
     resultEl.textContent = "Gleichstand – Karten bleiben liegen";
     pendingCards.push(player1.shift(), player2.shift());
   } else {
-    const winPlayer = winner;
-    resultEl.className = winPlayer === currentPlayer ? "result win" : "result lose";
-    resultEl.textContent = `Spieler ${winPlayer} gewinnt!`;
-    if (winPlayer === 1) player1.push(...cardsToWin);
+    resultEl.className = winner === myPlayer ? "result win" : "result lose";
+    resultEl.textContent = `Spieler ${winner} gewinnt!`;
+    if (winner === 1) player1.push(...cardsToWin);
     else player2.push(...cardsToWin);
     player1.shift();
     player2.shift();
