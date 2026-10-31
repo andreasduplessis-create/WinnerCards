@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,9 @@
     --orange: #ff9f43;
     --white: #ffffff;
     --muted: #8b9bb4;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -38,6 +41,7 @@
     overflow: hidden;
     margin-bottom: 16px;
     border: 1px solid #2a3a50;
+    position: relative;
   }
   .card-image {
     width: 100%;
@@ -62,10 +66,19 @@
   }
   .stat-row:last-child { border-bottom: none; }
   .stat-row:hover, .stat-row:active { background: #243044; }
-  .stat-label { font-weight: 600; }
+  .stat-label { font-weight: 600; display: flex; align-items: center; gap: 6px; }
   .stat-label.higher { color: var(--cyan); }
   .stat-label.lower { color: var(--orange); }
   .stat-value { font-weight: 500; }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot.better { background: var(--green); }
+  .dot.medium { background: var(--yellow); }
+  .dot.worse { background: var(--red); }
   .result {
     text-align: center;
     padding: 16px;
@@ -73,9 +86,9 @@
     font-weight: 700;
     min-height: 60px;
   }
-  .result.win { color: #4ade80; }
-  .result.lose { color: #f87171; }
-  .result.tie { color: #fbbf24; }
+  .result.win { color: var(--green); }
+  .result.lose { color: var(--red); }
+  .result.tie { color: var(--yellow); }
   .hidden { display: none; }
   .lobby, .game-over { text-align: center; padding: 40px 16px; }
   button, input {
@@ -119,6 +132,19 @@
     color: var(--muted);
     text-align: left;
   }
+  .image-dots {
+    text-align: center;
+    padding: 6px 0;
+  }
+  .image-dots span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4a5568;
+    margin: 0 3px;
+  }
+  .image-dots span.active { background: var(--cyan); }
 </style>
 </head>
 <body>
@@ -129,24 +155,25 @@
 </div>
 
 <div id="lobby" class="lobby">
-  <button onclick="createRoom()">Runde erstellen</button>
-  <div style="margin: 24px 0; color: var(--muted);">oder</div>
+  <button onclick="createRoom()">Create Room</button>
+  <div style="margin: 24px 0; color: var(--muted);">or</div>
   <div>
     <input id="joinCode" type="text" maxlength="4" placeholder="CODE" style="text-transform:uppercase">
-    <button onclick="joinRoom()">Beitreten</button>
+    <button onclick="joinRoom()">Join</button>
   </div>
   <div id="lobbyStatus" style="margin-top:20px; color:var(--muted);"></div>
 </div>
 
 <div id="gameScreen" class="hidden">
   <div class="status">
-    <div class="turn" id="turnDisplay">Warte auf Spieler…</div>
+    <div class="turn" id="turnDisplay">Waiting for player…</div>
     <div class="counts" id="countDisplay"></div>
   </div>
   <div class="debug" id="debugInfo"></div>
   <div class="pile-info" id="pileInfo"></div>
   <div class="card-display">
     <img class="card-image" id="cardImage" src="" alt="">
+    <div class="image-dots" id="imageDots"></div>
     <div class="card-name" id="cardName">—</div>
     <div class="stats" id="statsContainer"></div>
   </div>
@@ -155,7 +182,7 @@
 
 <div id="gameOverScreen" class="game-over hidden">
   <h2 id="winnerText"></h2>
-  <button onclick="location.reload()">Neues Spiel</button>
+  <button onclick="location.reload()">New Game</button>
 </div>
 
 <script type="module">
@@ -180,6 +207,7 @@ let myPlayer = null;
 let cards = [];
 let criteria = [];
 let gameRef = null;
+let currentImageIndex = 0;
 
 async function loadCards() {
   const res = await fetch("4and5genfighters.json");
@@ -220,7 +248,7 @@ window.createRoom = async function() {
   document.getElementById("lobbyStatus").innerHTML = `
     <div>Code:</div>
     <div class="room-code">${roomCode}</div>
-    <div>Warte auf Spieler 2…</div>
+    <div>Waiting for player 2…</div>
   `;
   listenToGame();
 };
@@ -234,7 +262,7 @@ window.joinRoom = async function() {
   gameRef = ref(db, `rooms/${roomCode}`);
   const snap = await get(gameRef);
   if (!snap.exists()) {
-    document.getElementById("lobbyStatus").textContent = "Raum nicht gefunden";
+    document.getElementById("lobbyStatus").textContent = "Room not found";
     return;
   }
   await update(gameRef, { status: "playing" });
@@ -255,6 +283,12 @@ function listenToGame() {
   });
 }
 
+function getImages(card) {
+  if (card.images && card.images.length) return card.images;
+  if (card.image) return [card.image];
+  return [];
+}
+
 function renderState(state) {
   const myCards = myPlayer === 1 ? (state.p1 || []) : (state.p2 || []);
   if (myCards.length === 0) {
@@ -263,10 +297,17 @@ function renderState(state) {
   }
   const card = myCards[0];
   const isMyTurn = state.turn === myPlayer && state.status === "playing";
+  currentImageIndex = 0;
 
-  document.getElementById("turnDisplay").textContent = isMyTurn ? "Du bist am Zug" : "Gegner ist am Zug";
-  document.getElementById("countDisplay").textContent = `Karten: ${(state.p1||[]).length} | ${(state.p2||[]).length}`;
-  document.getElementById("cardImage").src = `images/${card.image}`;
+  document.getElementById("turnDisplay").textContent = isMyTurn ? "Your turn" : "Opponent's turn";
+  document.getElementById("countDisplay").textContent = `Cards: ${(state.p1||[]).length} | ${(state.p2||[]).length}`;
+
+  const images = getImages(card);
+  const imgEl = document.getElementById("cardImage");
+  imgEl.src = images.length ? `images/${images[0]}` : "";
+  const dots = document.getElementById("imageDots");
+  dots.innerHTML = images.map((_, i) => `<span class="${i===0?'active':''}"></span>`).join("");
+
   document.getElementById("cardName").textContent = card.name;
 
   const stats = document.getElementById("statsContainer");
@@ -276,8 +317,12 @@ function renderState(state) {
     row.className = "stat-row";
     const cls = cat.higher ? "higher" : "lower";
     const val = card[cat.key] ?? "—";
+    const rating = card.ratings?.[cat.key] || "medium";
     row.innerHTML = `
-      <span class="stat-label ${cls}">${cat.label}</span>
+      <span class="stat-label ${cls}">
+        <span class="dot ${rating}"></span>
+        ${cat.label}
+      </span>
       <span class="stat-value">${val} ${cat.unit}</span>
     `;
     if (isMyTurn) {
@@ -290,26 +335,22 @@ function renderState(state) {
   });
 
   document.getElementById("pileInfo").textContent = (state.pending && state.pending.length)
-    ? `${state.pending.length} Karten liegen (Gleichstand)`
+    ? `${state.pending.length} cards on the pile (tie)`
     : "";
 
   const debug = document.getElementById("debugInfo");
-  if (state.debug) {
-    debug.innerHTML = state.debug;
-  } else {
-    debug.textContent = "";
-  }
+  debug.innerHTML = state.debug || "";
 
   const resultEl = document.getElementById("resultDisplay");
   resultEl.className = "result";
   if (state.lastWinner === 0) {
-    resultEl.textContent = "Gleichstand – Karten bleiben liegen";
+    resultEl.textContent = "Tie – cards stay on the pile";
     resultEl.classList.add("tie");
   } else if (state.lastWinner === myPlayer) {
-    resultEl.textContent = "Du hast gewonnen!";
+    resultEl.textContent = "You won!";
     resultEl.classList.add("win");
   } else if (state.lastWinner && state.lastWinner !== myPlayer) {
-    resultEl.textContent = "Du hast verloren";
+    resultEl.textContent = "You lost";
     resultEl.classList.add("lose");
   } else {
     resultEl.textContent = "";
@@ -347,14 +388,14 @@ async function playCategory(cat, state) {
 
   if (winner === 0) {
     newPending = [...pending, c1, c2];
-    nextTurn = state.turn; // Gleichstand: gleicher Spieler zieht nochmal
+    nextTurn = state.turn;
   } else {
     if (winner === 1) newP1 = [...newP1, ...wonCards];
     else newP2 = [...newP2, ...wonCards];
     nextTurn = winner;
   }
 
-  const debugText = `${cat.label}: ${c1.name} (${v1}) vs ${c2.name} (${v2}) → Gewinner: ${winner === 0 ? "Gleichstand" : "Spieler " + winner}`;
+  const debugText = `${cat.label}: ${c1.name} (${v1}) vs ${c2.name} (${v2}) → Winner: ${winner === 0 ? "Tie" : "Player " + winner}`;
 
   await update(gameRef, {
     p1: newP1,
@@ -369,7 +410,8 @@ async function playCategory(cat, state) {
 function endGame(winner) {
   document.getElementById("gameScreen").classList.add("hidden");
   document.getElementById("gameOverScreen").classList.remove("hidden");
-  document.getElementById("winnerText").textContent = winner === myPlayer ? "Du hast gewonnen!" : "Du hast verloren";
+  const text = winner === myPlayer ? "" : "You lost";
+  document.getElementById("winnerText").textContent = text;
 }
 </script>
 </body>
