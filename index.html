@@ -83,15 +83,9 @@
   body.player-light .stat-row:hover, body.player-light .stat-row:active { background: #2c3a52; }
   .stat-row:last-child { border-bottom: none; }
   .stat-row:hover, .stat-row:active { background: #243044; }
-  .stat-label { font-weight: 500; display: flex; align-items: center; gap: 6px; text-transform: none; }
-  .stat-value { font-weight: 500; }
-  body.player-light .stat-label,
-  body.player-light .stat-value { font-weight: 700; }
-  body:not(.player-light) .stat-label,
-  body:not(.player-light) .stat-value {
-    font-weight: 400;
-    opacity: 0.65;
-  }
+  .stat-label, .stat-value { font-weight: 500; }
+  .my-turn .stat-label, .my-turn .stat-value { font-weight: 700; color: #ffffff; }
+  .opp-turn .stat-label, .opp-turn .stat-value { font-weight: 400; color: #a8a29e; }
   .dot {
     width: 8px; height: 8px; border-radius: 50%; display: inline-block;
   }
@@ -379,10 +373,10 @@ function startAutoRotate() {
   }, 2500);
 }
 
-function renderJokerButton() {
+function renderJokerButton(isMyTurn) {
   const area = document.getElementById("jokerArea");
   area.innerHTML = "";
-  if (jokersLeft <= 0) return;
+  if (jokersLeft <= 0 || !isMyTurn) return;
 
   const wrap = document.createElement("div");
   wrap.style.textAlign = "center";
@@ -403,7 +397,6 @@ function renderJokerButton() {
   btn.disabled = true;
   btn.onclick = useJoker;
 
-  // Local confirm only – for true dual-confirm sync jokerConfirm via Firebase
   check.onchange = () => { btn.disabled = !check.checked; };
 
   wrap.appendChild(check);
@@ -415,7 +408,7 @@ function useJoker() {
   if (jokersLeft <= 0 || !jokerTypes.length) return;
   const type = jokerTypes.shift();
   jokersLeft--;
-  renderJokerButton();
+  renderJokerButton(true);
 
   if (type === "colors") {
     document.querySelectorAll(".dot").forEach(d => d.classList.remove("hidden-dot"));
@@ -551,7 +544,7 @@ function renderState(state) {
     revealArea.appendChild(btn);
   }
 
-  renderJokerButton();
+  renderJokerButton(isMyTurn);
 
   const resultEl = document.getElementById("resultDisplay");
   resultEl.className = "result";
