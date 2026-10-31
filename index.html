@@ -56,9 +56,13 @@
     background: #111820;
     transition: border 0.2s;
   }
-  .card-image.peek {
-    border: 4px solid #fbbf24;
-    box-shadow: 0 0 20px #fbbf24;
+  .card-image.flash-win {
+    border: 5px solid #4ade80;
+    box-shadow: 0 0 25px #4ade80;
+  }
+  .card-image.flash-lose {
+    border: 5px solid #f87171;
+    box-shadow: 0 0 25px #f87171;
   }
   .card-name {
     text-align: center;
@@ -83,6 +87,11 @@
   .stat-value { font-weight: 500; }
   body.player-light .stat-label,
   body.player-light .stat-value { font-weight: 700; }
+  body:not(.player-light) .stat-label,
+  body:not(.player-light) .stat-value {
+    font-weight: 400;
+    opacity: 0.65;
+  }
   .dot {
     width: 8px; height: 8px; border-radius: 50%; display: inline-block;
   }
@@ -377,17 +386,16 @@ function renderJokerButton() {
 
   const wrap = document.createElement("div");
   wrap.style.textAlign = "center";
+  wrap.style.display = "flex";
+  wrap.style.alignItems = "center";
+  wrap.style.justifyContent = "center";
+  wrap.style.gap = "8px";
 
   const check = document.createElement("input");
   check.type = "checkbox";
   check.id = "jokerConfirm";
-  check.style.marginRight = "8px";
-
-  const label = document.createElement("label");
-  label.htmlFor = "jokerConfirm";
-  label.textContent = "Confirm Joker";
-  label.style.marginRight = "12px";
-  label.style.color = "var(--muted)";
+  check.style.width = "18px";
+  check.style.height = "18px";
 
   const btn = document.createElement("button");
   btn.className = "joker-btn";
@@ -395,10 +403,10 @@ function renderJokerButton() {
   btn.disabled = true;
   btn.onclick = useJoker;
 
+  // Local confirm only – for true dual-confirm sync jokerConfirm via Firebase
   check.onchange = () => { btn.disabled = !check.checked; };
 
   wrap.appendChild(check);
-  wrap.appendChild(label);
   wrap.appendChild(btn);
   area.appendChild(wrap);
 }
@@ -650,15 +658,12 @@ async function confirmReveal(state) {
 }
 
 function flash(color) {
-  const overlay = document.createElement("div");
-  overlay.style.cssText = `
-    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
-    background: ${color === "green" ? "rgba(74,222,128,0.35)" : "rgba(248,113,113,0.35)"};
-    transition: opacity 0.4s;
-  `;
-  document.body.appendChild(overlay);
-  setTimeout(() => overlay.style.opacity = "0", 50);
-  setTimeout(() => overlay.remove(), 450);
+  const img = document.getElementById("cardImage");
+  img.classList.remove("flash-win", "flash-lose");
+  img.classList.add(color === "green" ? "flash-win" : "flash-lose");
+  setTimeout(() => {
+    img.classList.remove("flash-win", "flash-lose");
+  }, 1500);
 }
 
 function endGame(winner) {
