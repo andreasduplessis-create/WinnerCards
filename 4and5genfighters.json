@@ -935,56 +935,56 @@
   "criteria": [
     {
       "key": "speed",
-      "label": "SPEED",
+      "label": "Speed",
       "higher": true,
       "unit": "km/h",
       "average": 2229.3
     },
     {
       "key": "thrust_hubkraft",
-      "label": "THRUST",
+      "label": "Thrust",
       "higher": true,
       "unit": "kg",
       "average": 19969.7
     },
     {
       "key": "ceiling",
-      "label": "CEILING",
+      "label": "Ceiling",
       "higher": true,
       "unit": "m",
       "average": 17606.5
     },
     {
       "key": "empty_weight",
-      "label": "EMPTY",
+      "label": "Empty Wt",
       "higher": false,
       "unit": "kg",
       "average": 13333.8
     },
     {
       "key": "range",
-      "label": "RANGE",
+      "label": "Range",
       "higher": true,
       "unit": "km",
       "average": 1160.3
     },
     {
       "key": "climb",
-      "label": "CLIMB",
+      "label": "Climb",
       "higher": true,
       "unit": "m/s",
       "average": 275.8
     },
     {
       "key": "tw_ratio",
-      "label": "T/W",
+      "label": "T/W Ratio",
       "higher": true,
       "unit": "",
       "average": 1.1
     },
     {
       "key": "payload",
-      "label": "PAYLOAD",
+      "label": "Payload",
       "higher": true,
       "unit": "kg",
       "average": 7560.9
