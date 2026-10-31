@@ -175,26 +175,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const CATEGORIES = [
-  { key: "speed", label: "SPEED", higher: true, unit: "km/h" },
-  { key: "thrust_hubkraft", label: "HUBKRAFT", higher: true, unit: "kg" },
-  { key: "ceiling", label: "CEILING", higher: true, unit: "m" },
-  { key: "empty_weight", label: "EMPTY", higher: false, unit: "kg" },
-  { key: "range", label: "RANGE", higher: true, unit: "km" },
-  { key: "climb", label: "CLIMB", higher: true, unit: "m/s" },
-  { key: "tw_ratio", label: "T/W", higher: true, unit: "" },
-  { key: "payload", label: "PAYLOAD", higher: false, unit: "kg" }
-];
-
 let roomCode = null;
 let myPlayer = null;
 let cards = [];
+let criteria = [];
 let gameRef = null;
 
 async function loadCards() {
   const res = await fetch("kampfflieger_topass_dataset.json");
   const data = await res.json();
   cards = data.cards;
+  criteria = data.criteria || [];
 }
 
 function shuffle(arr) {
@@ -279,7 +270,7 @@ function renderState(state) {
 
   const stats = document.getElementById("statsContainer");
   stats.innerHTML = "";
-  CATEGORIES.forEach(cat => {
+  criteria.forEach(cat => {
     const row = document.createElement("div");
     row.className = "stat-row";
     const cls = cat.higher ? "higher" : "lower";

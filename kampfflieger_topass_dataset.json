@@ -512,5 +512,55 @@
     "data_quality": "Werte sind konsistente öffentliche Näherungen / Schätzungen (Stand 2026). Für finale Spielversion können einzelne Werte noch feinjustiert werden.",
     "future_use": "Diese Struktur dient als Taxonomie für weitere Domänen (z.B. Balletttänzer, Tierbisskraft, Segelboote). Jede Domäne bekommt eigene Kriterien mit direction_default und 32 Records.",
     "next_steps": "1. Erstes Spiel mit diesem Gen4/5 Fighter Set bauen. 2. Später separate Kategorie für andere Kampfflugzeuge (z.B. ältere Generationen, leichte Angriffsflugzeuge, etc.)."
-  }
+  },
+  "criteria": [
+    {
+      "key": "speed",
+      "label": "SPEED",
+      "higher": true,
+      "unit": "km/h"
+    },
+    {
+      "key": "thrust_hubkraft",
+      "label": "HUBKRAFT",
+      "higher": true,
+      "unit": "kg"
+    },
+    {
+      "key": "ceiling",
+      "label": "CEILING",
+      "higher": true,
+      "unit": "m"
+    },
+    {
+      "key": "empty_weight",
+      "label": "EMPTY",
+      "higher": false,
+      "unit": "kg"
+    },
+    {
+      "key": "range",
+      "label": "RANGE",
+      "higher": true,
+      "unit": "km"
+    },
+    {
+      "key": "climb",
+      "label": "CLIMB",
+      "higher": true,
+      "unit": "m/s"
+    },
+    {
+      "key": "tw_ratio",
+      "label": "T/W",
+      "higher": true,
+      "unit": ""
+    },
+    {
+      "key": "payload",
+      "label": "PAYLOAD",
+      "higher": true,
+      "unit": "kg"
+    }
+  ]
 }
