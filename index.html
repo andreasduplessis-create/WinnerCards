@@ -305,13 +305,24 @@ function resolveImageSrc(src) {
 function startAutoRotate() {
   if (autoRotateTimer) clearInterval(autoRotateTimer);
   if (currentImages.length <= 1) return;
-  autoRotateTimer = setInterval(() => {
+
+  // First change after 2.5s, then every 1.5s
+  setTimeout(() => {
     currentImageIndex = (currentImageIndex + 1) % currentImages.length;
     document.getElementById("cardImage").src = resolveImageSrc(currentImages[currentImageIndex]);
-    document.querySelectorAll("#imageDots span").forEach((s, i) => {
-      s.classList.toggle("active", i === currentImageIndex);
-    });
-  }, 1000);
+    updateDots();
+    autoRotateTimer = setInterval(() => {
+      currentImageIndex = (currentImageIndex + 1) % currentImages.length;
+      document.getElementById("cardImage").src = resolveImageSrc(currentImages[currentImageIndex]);
+      updateDots();
+    }, 1500);
+  }, 2500);
+}
+
+function updateDots() {
+  document.querySelectorAll("#imageDots span").forEach((s, i) => {
+    s.classList.toggle("active", i === currentImageIndex);
+  });
 }
 
 function stopAutoRotate() {
@@ -353,6 +364,14 @@ function renderState(state) {
   currentImageIndex = 0;
   const imgEl = document.getElementById("cardImage");
   imgEl.src = currentImages.length ? resolveImageSrc(currentImages[0]) : "";
+  imgEl.onerror = () => {
+    // Skip broken image
+    currentImages.splice(currentImageIndex, 1);
+    if (currentImages.length === 0) return;
+    currentImageIndex = currentImageIndex % currentImages.length;
+    imgEl.src = resolveImageSrc(currentImages[currentImageIndex]);
+    updateDots();
+  };
   startAutoRotate();
 
   const dots = document.getElementById("imageDots");
