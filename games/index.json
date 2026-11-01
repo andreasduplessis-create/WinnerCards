@@ -1,1 +1,18 @@
-
+{
+  "games": [
+    {
+      "id": "4and5genfighters",
+      "name": "4th & 5th Gen Fighters",
+      "description": "32 modern combat aircraft",
+      "data": "games/4and5genfighters/data.json",
+      "imageBase": "games/4and5genfighters/images/"
+    },
+    {
+      "id": "catamarans",
+      "name": "Sailing Catamarans",
+      "description": "32 sailing catamaran models",
+      "data": "games/catamarans/data.json",
+      "imageBase": "games/catamarans/images/"
+    }
+  ]
+}
