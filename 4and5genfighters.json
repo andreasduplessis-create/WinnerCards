@@ -95,7 +95,7 @@
       "id": 1,
       "name": "F-22 Raptor",
       "speed": 2410,
-      "thrust_hubkraft": 312,
+      "thrust_hubkraft": 31815,
       "ceiling": 19812,
       "empty_weight": 19700,
       "range": 2960,
@@ -117,13 +117,15 @@
         "1_photo1.jpg",
         "1_photo2.jpg"
       ],
-      "flag": "🇺🇸"
+      "flag": "🇺🇸",
+      "g_pos": 9.0,
+      "g_neg": -3.0
     },
     {
       "id": 2,
       "name": "F-35A Lightning II",
       "speed": 1930,
-      "thrust_hubkraft": 191,
+      "thrust_hubkraft": 19476,
       "ceiling": 15240,
       "empty_weight": 13300,
       "range": 2220,
@@ -143,13 +145,15 @@
       "images": [
         "o9O5o.jpg"
       ],
-      "flag": "🇺🇸"
+      "flag": "🇺🇸",
+      "g_pos": 9.0,
+      "g_neg": -3.0
     },
     {
       "id": 3,
       "name": "Chengdu J-20",
       "speed": 2130,
-      "thrust_hubkraft": 290,
+      "thrust_hubkraft": 29571,
       "ceiling": 20000,
       "empty_weight": 17000,
       "range": 5500,
@@ -175,7 +179,7 @@
       "id": 4,
       "name": "Shenyang J-35",
       "speed": 1905,
-      "thrust_hubkraft": 186,
+      "thrust_hubkraft": 18966,
       "ceiling": 16000,
       "empty_weight": 12000,
       "range": 3500,
@@ -201,7 +205,7 @@
       "id": 5,
       "name": "Su-57 Felon",
       "speed": 2135,
-      "thrust_hubkraft": 284,
+      "thrust_hubkraft": 28959,
       "ceiling": 20000,
       "empty_weight": 18500,
       "range": 3500,
@@ -221,13 +225,15 @@
       "images": [
         "6ltgd.jpg"
       ],
-      "flag": "🇷🇺"
+      "flag": "🇷🇺",
+      "g_pos": 9.0,
+      "g_neg": -3.0
     },
     {
       "id": 6,
       "name": "KAI KF-21 Boramae",
       "speed": 2200,
-      "thrust_hubkraft": 196,
+      "thrust_hubkraft": 19986,
       "ceiling": 16764,
       "empty_weight": 11793,
       "range": 2900,
@@ -253,7 +259,7 @@
       "id": 7,
       "name": "Eurofighter Typhoon",
       "speed": 2495,
-      "thrust_hubkraft": 180,
+      "thrust_hubkraft": 18355,
       "ceiling": 16764,
       "empty_weight": 11000,
       "range": 2900,
@@ -273,13 +279,15 @@
       "images": [
         "Gjrij.jpg"
       ],
-      "flag": "🇪🇺"
+      "flag": "🇪🇺",
+      "g_pos": 9.0,
+      "g_neg": -3.0
     },
     {
       "id": 8,
       "name": "Dassault Rafale",
       "speed": 2130,
-      "thrust_hubkraft": 151,
+      "thrust_hubkraft": 15397,
       "ceiling": 16800,
       "empty_weight": 9850,
       "range": 3700,
@@ -299,13 +307,15 @@
       "images": [
         "8rf1v.jpg"
       ],
-      "flag": "🇫🇷"
+      "flag": "🇫🇷",
+      "g_pos": 9.0,
+      "g_neg": -3.2
     },
     {
       "id": 9,
       "name": "Saab Gripen E",
       "speed": 2200,
-      "thrust_hubkraft": 98,
+      "thrust_hubkraft": 9993,
       "ceiling": 16000,
       "empty_weight": 8000,
       "range": 3000,
@@ -331,7 +341,7 @@
       "id": 10,
       "name": "F-15EX Eagle II",
       "speed": 2655,
-      "thrust_hubkraft": 262,
+      "thrust_hubkraft": 26716,
       "ceiling": 18000,
       "empty_weight": 16103,
       "range": 3889,
@@ -351,13 +361,15 @@
       "images": [
         "RtwDP.jpg"
       ],
-      "flag": "🇺🇸"
+      "flag": "🇺🇸",
+      "g_pos": 9.0,
+      "g_neg": -3.0
     },
     {
       "id": 11,
       "name": "F-16V Viper",
       "speed": 2414,
-      "thrust_hubkraft": 131,
+      "thrust_hubkraft": 13358,
       "ceiling": 15240,
       "empty_weight": 9207,
       "range": 4220,
@@ -377,13 +389,15 @@
       "images": [
         "AHauI.jpg"
       ],
-      "flag": "🇺🇸"
+      "flag": "🇺🇸",
+      "g_pos": 9.0,
+      "g_neg": -3.0
     },
     {
       "id": 12,
       "name": "F/A-18E Super Hornet",
       "speed": 1915,
-      "thrust_hubkraft": 196,
+      "thrust_hubkraft": 19986,
       "ceiling": 15940,
       "empty_weight": 14550,
       "range": 2346,
@@ -409,7 +423,7 @@
       "id": 13,
       "name": "Su-35S",
       "speed": 2400,
-      "thrust_hubkraft": 274,
+      "thrust_hubkraft": 27940,
       "ceiling": 18000,
       "empty_weight": 19000,
       "range": 3600,
@@ -435,7 +449,7 @@
       "id": 14,
       "name": "Su-30SM",
       "speed": 2121,
-      "thrust_hubkraft": 246,
+      "thrust_hubkraft": 25085,
       "ceiling": 17300,
       "empty_weight": 17700,
       "range": 3000,
@@ -461,7 +475,7 @@
       "id": 15,
       "name": "MiG-35",
       "speed": 2100,
-      "thrust_hubkraft": 176,
+      "thrust_hubkraft": 17947,
       "ceiling": 16000,
       "empty_weight": 11000,
       "range": 3000,
@@ -487,7 +501,7 @@
       "id": 16,
       "name": "Chengdu J-10C",
       "speed": 2200,
-      "thrust_hubkraft": 142,
+      "thrust_hubkraft": 14480,
       "ceiling": 18000,
       "empty_weight": 9750,
       "range": 2592,
@@ -513,7 +527,7 @@
       "id": 17,
       "name": "Shenyang J-16",
       "speed": 2120,
-      "thrust_hubkraft": 270,
+      "thrust_hubkraft": 27532,
       "ceiling": 17300,
       "empty_weight": 17700,
       "range": 4000,
@@ -539,7 +553,7 @@
       "id": 18,
       "name": "Mitsubishi F-2",
       "speed": 2124,
-      "thrust_hubkraft": 125,
+      "thrust_hubkraft": 12746,
       "ceiling": 17983,
       "empty_weight": 9525,
       "range": 4000,
@@ -565,7 +579,7 @@
       "id": 19,
       "name": "HAL Tejas Mk1A",
       "speed": 2220,
-      "thrust_hubkraft": 85,
+      "thrust_hubkraft": 8667,
       "ceiling": 16000,
       "empty_weight": 6560,
       "range": 3000,
@@ -591,7 +605,7 @@
       "id": 20,
       "name": "PAC JF-17 Block 3",
       "speed": 1960,
-      "thrust_hubkraft": 84,
+      "thrust_hubkraft": 8565,
       "ceiling": 16700,
       "empty_weight": 6411,
       "range": 3480,
@@ -617,7 +631,7 @@
       "id": 21,
       "name": "Mirage 2000-5",
       "speed": 2340,
-      "thrust_hubkraft": 95,
+      "thrust_hubkraft": 9687,
       "ceiling": 16460,
       "empty_weight": 7500,
       "range": 1852,
@@ -643,7 +657,7 @@
       "id": 22,
       "name": "MiG-29M",
       "speed": 2500,
-      "thrust_hubkraft": 176,
+      "thrust_hubkraft": 17947,
       "ceiling": 18000,
       "empty_weight": 11600,
       "range": 2000,
@@ -669,7 +683,7 @@
       "id": 23,
       "name": "F-15C Eagle",
       "speed": 2650,
-      "thrust_hubkraft": 212,
+      "thrust_hubkraft": 21618,
       "ceiling": 19812,
       "empty_weight": 12700,
       "range": 3971,
@@ -695,7 +709,7 @@
       "id": 24,
       "name": "Su-27SM3",
       "speed": 2500,
-      "thrust_hubkraft": 245,
+      "thrust_hubkraft": 24983,
       "ceiling": 18500,
       "empty_weight": 16300,
       "range": 3530,
@@ -721,7 +735,7 @@
       "id": 25,
       "name": "MiG-31BM",
       "speed": 3000,
-      "thrust_hubkraft": 304,
+      "thrust_hubkraft": 30999,
       "ceiling": 25000,
       "empty_weight": 21820,
       "range": 3000,
@@ -747,7 +761,7 @@
       "id": 26,
       "name": "Shenyang J-11B",
       "speed": 2500,
-      "thrust_hubkraft": 264,
+      "thrust_hubkraft": 26920,
       "ceiling": 19000,
       "empty_weight": 16380,
       "range": 3530,
@@ -773,7 +787,7 @@
       "id": 27,
       "name": "Shenyang J-15",
       "speed": 2300,
-      "thrust_hubkraft": 250,
+      "thrust_hubkraft": 25492,
       "ceiling": 18000,
       "empty_weight": 17500,
       "range": 3500,
@@ -799,7 +813,7 @@
       "id": 28,
       "name": "F/A-18C Hornet",
       "speed": 1814,
-      "thrust_hubkraft": 158,
+      "thrust_hubkraft": 16111,
       "ceiling": 15240,
       "empty_weight": 11200,
       "range": 3330,
@@ -824,9 +838,9 @@
     {
       "id": 29,
       "name": "TAI KAAN",
-      "speed": 2200,
-      "thrust_hubkraft": 200,
-      "ceiling": 17000,
+      "speed": 2223,
+      "thrust_hubkraft": 26716,
+      "ceiling": 16764,
       "empty_weight": 12000,
       "range": 3000,
       "climb": 22000,
@@ -851,7 +865,7 @@
       "id": 30,
       "name": "HAL AMCA",
       "speed": 2200,
-      "thrust_hubkraft": 220,
+      "thrust_hubkraft": 22433,
       "ceiling": 18000,
       "empty_weight": 13000,
       "range": 3200,
@@ -877,7 +891,7 @@
       "id": 31,
       "name": "Su-33",
       "speed": 2300,
-      "thrust_hubkraft": 251,
+      "thrust_hubkraft": 25594,
       "ceiling": 17000,
       "empty_weight": 18400,
       "range": 3000,
@@ -904,7 +918,7 @@
       "id": 32,
       "name": "Chengdu J-10A",
       "speed": 2400,
-      "thrust_hubkraft": 125,
+      "thrust_hubkraft": 12746,
       "ceiling": 18000,
       "empty_weight": 9750,
       "range": 2950,
@@ -944,7 +958,7 @@
       "key": "thrust_hubkraft",
       "label": "Thrust",
       "higher": true,
-      "unit": "kg",
+      "unit": "kgf",
       "average": 19969.7
     },
     {
@@ -988,6 +1002,18 @@
       "higher": true,
       "unit": "kg",
       "average": 7560.9
+    },
+    {
+      "key": "g_pos",
+      "label": "G+",
+      "unit": "g",
+      "higher_better": true
+    },
+    {
+      "key": "g_neg",
+      "label": "G–",
+      "unit": "g",
+      "higher_better": false
     }
   ]
 }
