@@ -361,6 +361,10 @@ function updateDots() {
 function startAutoRotate() {
   if (autoRotateTimer) clearInterval(autoRotateTimer);
   if (currentImages.length <= 1) return;
+  // Only start if not already rotating the same set
+  const key = currentImages.join("|");
+  if (window._lastRotateKey === key) return;
+  window._lastRotateKey = key;
   setTimeout(() => {
     currentImageIndex = (currentImageIndex + 1) % currentImages.length;
     document.getElementById("cardImage").src = resolveImageSrc(currentImages[currentImageIndex]);
@@ -397,7 +401,10 @@ function renderJokerButton(isMyTurn) {
   btn.disabled = true;
   btn.onclick = useJoker;
 
-  check.onchange = () => { btn.disabled = !check.checked; };
+  check.onchange = () => { 
+    btn.disabled = !check.checked; 
+    // TODO: sync jokerConfirm via Firebase so both sides must confirm
+  };
 
   wrap.appendChild(check);
   wrap.appendChild(btn);
@@ -572,6 +579,7 @@ async function playCategory(cat, state) {
     },
     debug: `Selected: ${cat.label} – step 1`
   });
+  setTimeout(() => { isRevealing = false; }, 800);
 }
 
 async function confirmReveal(state) {
